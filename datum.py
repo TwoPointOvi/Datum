@@ -38,7 +38,8 @@ tokens = [
     'CTEC',
     'CTEB',
     'LESSEQUAL',
-    'MOREEQUAL'
+    'MOREEQUAL',
+    'DEQUAL'
 ]
 
 t_CTEI = r'(\+|-)?[0-9]+'
@@ -48,6 +49,7 @@ t_CTEC = r'.'
 t_CTEB = r'True|False'
 t_LESSEQUAL = r'<='
 t_MOREEQUAL = r'>='
+t_DEQUAL = r'=='
 
 tokens += list(reserved.values())
 
