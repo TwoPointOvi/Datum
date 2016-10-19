@@ -45,7 +45,7 @@ tokens = [
 t_CTEI = r'(\+|-)?[0-9]+'
 t_CTEF = r'(\+|-)?[0-9]*\.[0-9]+'
 t_CTES = r'\".*\"'
-t_CTEC = r'.'
+t_CTEC = r'\'.\''
 t_CTEB = r'True|False'
 t_LESSEQUAL = r'<='
 t_MOREEQUAL = r'>='
