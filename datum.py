@@ -40,6 +40,7 @@ tokens = [
     'LESSEQUAL',
     'MOREEQUAL',
     'DEQUAL'
+    'DIFF'
 ]
 
 t_CTEI = r'(\+|-)?[0-9]+'
@@ -50,12 +51,17 @@ t_CTEB = r'True|False'
 t_LESSEQUAL = r'<='
 t_MOREEQUAL = r'>='
 t_DEQUAL = r'=='
+t_DIFF = r'<>'
 
 tokens += list(reserved.values())
 
 literals = ";:,\{\}\<\>\+\-\*\/\(\)="
 
-t_ignore = " \t\n"
+t_ignore = " \t"
+
+def t_newline(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
 
 def t_ID(t):
     r'(_*[a-zA-Z]+_*[0-9]*_*)+'
@@ -252,13 +258,74 @@ def p_op_vector3(p):
                 | REMOVE '('
     '''
 
-def p_progam(p):
+def p_expresion(p):
     '''
+    expresion : exp expresion1
     '''
 
+def p_expresion1(p):
+    '''
+    expresion1 : '>' exp
+                | '<' exp
+                | DEQUAL exp
+                | LESSEQUAL exp
+                | MOREEUAL exp
+                | DIFF exp
+                | 'AND' exp
+                | 'OR' exp
+    '''
 
+def p_exp(p):
+    '''
+    exp : termino exp1
+    '''
 
+def p_exp1(p):
+    '''
+    exp1 : '+' exp1
+            | '-' exp1
+            | empty
+    '''
 
+def p_termino(p):
+    '''
+    termino : exponente termino1
+    '''
 
+def p_termino1(p):
+    '''
+    termino1 : '*' termino1
+                | '/' termino1
+                | empty
+    '''
 
+def p_exponente(p):
+    '''
+    exponente : factor exponente1
+    '''
 
+def p_exponente1(p):
+    '''
+    exponente1 : '^' exponente1
+                | empty
+    '''
+
+def p_factor(p):
+    '''
+    factor : '(' expresion ')'
+            | ID factor1
+            | constantes
+    '''
+
+def p_factor1(p):
+    '''
+    factor1 : '[' exp ']'
+            | '(' exp factor2 ')'
+            | empty
+    '''
+
+def p_factor2(p):
+    '''
+    factor2 : ',' exp factor2
+            | empty
+    '''
