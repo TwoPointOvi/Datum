@@ -1,0 +1,31 @@
+program test;
+int uno;
+float dos;
+bool tres;
+{
+int ovi(int i, char j) {
+	string x = "ovi";
+	
+	while (i < 10)
+	{
+		i = i + 10;
+	}
+	
+	if (j <> i) {
+		if (i > 10) {
+			print(j);
+		} else {
+			print(x);
+		}
+	}
+	
+	return i;
+}
+void hugo() {
+	print(c);
+}
+main() {
+	uno = ovi(10, 'a');
+	hugo();
+}
+}

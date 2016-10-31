@@ -26,41 +26,49 @@ reserved = {
     'remove' : 'REMOVE',
     'modify' : 'MODIFY',
     'load' : 'LOAD',
-    'size' : 'SIZE'
+    'size' : 'SIZE',
+    'main' : 'MAIN',
+    'AND' : 'AND',
+    'OR' : 'OR',
+    'return' : 'RETURN'
 }
 
 #Tokens
 tokens = [
     'ID',
-    'CTEI',
-    'CTEF',
-    'CTES',
-    'CTEC',
-    'CTEB',
+    'CTE_INT',
+    'CTE_FLOAT',
+    'CTE_STR',
+    'CTE_CHAR',
+    'CTE_BOOL',
     'LESSEQUAL',
     'MOREEQUAL',
-    'DEQUAL'
+    'DEQUAL',
     'DIFF'
 ]
 
-t_CTEI = r'(\+|-)?[0-9]+'
-t_CTEF = r'(\+|-)?[0-9]*\.[0-9]+'
-t_CTES = r'\".*\"'
-t_CTEC = r'\'.\''
-t_CTEB = r'True|False'
+tokens += list(reserved.values())
+
+t_CTE_INT = r'(\+|-)?[0-9]+'
+t_CTE_FLOAT = r'(\+|-)?[0-9]*\.[0-9]+'
+t_CTE_STR = r'\".*\"'
+t_CTE_CHAR = r'\'.\''
+t_CTE_BOOL = r'True|False'
 t_LESSEQUAL = r'<='
 t_MOREEQUAL = r'>='
 t_DEQUAL = r'=='
 t_DIFF = r'<>'
 
-tokens += list(reserved.values())
-
 literals = ";:,\{\}\<\>\+\-\*\/\(\)="
 
 t_ignore = " \t"
 
+lineNumber = 1
+
 def t_newline(t):
     r'\n+'
+    global lineNumber
+    lineNumber += 1
     t.lexer.lineno += len(t.value)
 
 def t_ID(t):
@@ -79,10 +87,10 @@ lex.lex()
 #Gramatica
 def p_progam(p):
     '''
-    program : ID ';' declare_vars prog_body
+    program : PROGRAM ID ';' declare_vars prog_body
     '''
 
-def p_declar_vars(p):
+def p_declare_vars(p):
     '''
     declare_vars :  vars declare_vars
                     | empty
@@ -130,24 +138,36 @@ def p_constants(p):
 
 def p_prog_body(p):
     '''
-    prog_body : '{' funciones '}'
+    prog_body : '{' funciones main_body '}'
+    '''
+
+def p_main_body(p):
+    '''
+    main_body : MAIN '(' ')' '{' declare_vars estatuto '}'
     '''
 
 def p_funciones(p):
     '''
-    funciones : func_tipo ID '(' params ')' '{' vars estatuto return_body '}'
+    funciones : func_tipo ID '(' params ')' '{' declare_vars estatuto return_body '}' funciones
+                | empty
     '''
 
 def p_func_tipo(p):
     '''
-    func_tipo : TIPO
+    func_tipo : tipo
                 | VOID
     '''
 
 def p_params(p):
     '''
-    params : var
-            | ',' var
+    params : var params1
+            | empty
+    '''
+
+def p_params1(p):
+    '''
+    params1 : ',' params
+            | empty
     '''
 
 def p_return_body(p):
@@ -163,18 +183,35 @@ def p_bloque(p):
 
 def p_estatuto(p):
     '''
-    estatuto : asignacion
+    estatuto : estatuto1 estatuto2
+    '''
+
+def p_estatuto1(p):
+    '''
+    estatuto1 : asignacion
                 | condicion
                 | repeticion
                 | escritura
                 | graficar
                 | op_vector
+                | expresion ';'
+    '''
+
+def p_estatuto2(p):
+    '''
+    estatuto2 : estatuto1
+                | empty
     '''
 
 def p_asignacion(p):
     '''
     asignacion : ID asignacion2 '=' expresion ';'
-                | '[' exp ']'
+    '''
+
+def p_asignacion2(p):
+    '''
+    asignacion2 : '[' exp ']'
+                | empty
     '''
 
 def p_condicion(p):
@@ -190,18 +227,17 @@ def p_condicion1(p):
 
 def p_repeticion(p):
     '''
-    repeticion : '(' expresion ')' bloque
+    repeticion : WHILE '(' expresion ')' bloque
     '''
 
 def p_escritura(p):
     '''
-    escritura : PRINT '(' escritura1 ')'
+    escritura : PRINT '(' escritura1 ')' ';'
     '''
 
 def p_escritura1(p):
     '''
     escritura1 : expresion
-                | constants
     '''
 
 def p_graficar(p):
@@ -224,7 +260,7 @@ def p_charts(p):
 
 def p_pie_chart(p):
     '''
-    pie_chart : PIE_CHART '(' ID ',' ID ',' title ')'
+    pie_chart : PIECHART '(' ID ',' ID ',' title ')'
     '''
 
 def p_title(p):
@@ -265,14 +301,15 @@ def p_expresion(p):
 
 def p_expresion1(p):
     '''
-    expresion1 : '>' exp
-                | '<' exp
-                | DEQUAL exp
-                | LESSEQUAL exp
-                | MOREEUAL exp
-                | DIFF exp
-                | 'AND' exp
-                | 'OR' exp
+    expresion1 : '>' expresion
+                | '<' expresion
+                | DEQUAL expresion
+                | LESSEQUAL expresion
+                | MOREEQUAL expresion
+                | DIFF expresion
+                | AND expresion
+                | OR expresion
+                | empty
     '''
 
 def p_exp(p):
@@ -282,8 +319,8 @@ def p_exp(p):
 
 def p_exp1(p):
     '''
-    exp1 : '+' exp1
-            | '-' exp1
+    exp1 : '+' exp
+            | '-' exp
             | empty
     '''
 
@@ -294,8 +331,8 @@ def p_termino(p):
 
 def p_termino1(p):
     '''
-    termino1 : '*' termino1
-                | '/' termino1
+    termino1 : '*' termino
+                | '/' termino
                 | empty
     '''
 
@@ -306,7 +343,7 @@ def p_exponente(p):
 
 def p_exponente1(p):
     '''
-    exponente1 : '^' exponente1
+    exponente1 : '^' exponente
                 | empty
     '''
 
@@ -314,18 +351,45 @@ def p_factor(p):
     '''
     factor : '(' expresion ')'
             | ID factor1
-            | constantes
+            | constants
     '''
 
 def p_factor1(p):
     '''
     factor1 : '[' exp ']'
-            | '(' exp factor2 ')'
+            | '(' factor2 ')'
             | empty
     '''
 
 def p_factor2(p):
     '''
-    factor2 : ',' exp factor2
+    factor2 : exp factor3
             | empty
     '''
+
+def p_factor3(p):
+    '''
+    factor3 : ',' exp factor2
+            |
+    '''
+
+def p_empty(p):
+    '''
+    empty :
+    '''
+    pass
+
+def p_error(p):
+    global lineNumber
+    print('Syntax error at token "%s" in line #%d.' % (p.value, lineNumber))
+
+parser = yacc.yacc()
+
+import sys
+if len(sys.argv) < 2:
+    fileName = raw_input('Archivo de entrada: ')
+else:
+    fileName = sys.argv[1]
+
+with open(fileName) as codeFile:
+    parser.parse(codeFile.read())
