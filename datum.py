@@ -136,7 +136,11 @@ def p_var(p):
         if p[2] in procs['global'].keys() or p[2] in procs[current_scope][2].keys():
             print("ERROR: variable con el mismo nombre declarada dos veces")
         else:
-            procs[current_scope][2][p[2]]=p[1]
+            global inParams
+            if inParams:
+                procs[current_scope][1].append(p[1])
+            else:
+                procs[current_scope][2][p[2]]=p[1]
 
 def p_initialize_var(p):
     '''
@@ -190,11 +194,25 @@ def p_t_main(p):
 
 def p_funciones(p):
     '''
-    funciones : t_new_func '(' params ')' '{' declare_vars estatuto return_body '}' funciones
+    funciones : t_new_func '(' t_inParams params t_outParams ')' '{' declare_vars estatuto return_body '}' funciones
                 | empty
     '''
     global current_scope
     current_scope = 'global'
+
+def p_t_inParams(p):
+    '''
+    t_inParams :
+    '''
+    global inParams
+    inParams = True
+
+def p_t_outParams(p):
+    '''
+    t_outParams :
+    '''
+    global inParams
+    inParams = False
 
 def p_t_new_func(p):
     '''
