@@ -96,13 +96,14 @@ def p_progam(p):
     '''
     program : t_prog ID ';' declare_vars prog_body
     '''
+    global procs
     print(procs)
 
 def p_t_prog(p):
     '''
     t_prog : PROGRAM
     '''
-    procs['global'] = []
+    procs['global'] = {}
 
 def p_declare_vars(p):
     '''
@@ -121,8 +122,12 @@ def p_var(p):
     var : tipo ID
     '''
     print(p[1])
+    global procs
     if current_scope == 'global':
-        procs[current_scope].append([p[2],p[1]])
+        if p[2] in procs[current_scope].keys():
+            print("ERROR: variable con el mismo nombre declarada dos veces")
+        else:
+            procs[current_scope][p[2]]=p[1]
 
 def p_initialize_var(p):
     '''
@@ -188,7 +193,7 @@ def p_t_new_func(p):
     global current_scope
     current_scope = p[2]
     global procs
-    procs[current_scope] = [p[1], [], []]
+    procs[current_scope] = [p[1], [], {}]
 
 def p_func_tipo(p):
     '''
