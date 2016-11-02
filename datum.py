@@ -84,11 +84,25 @@ def t_error(t):
 #Build lexer
 lex.lex()
 
+
+#Tabla Procedimiento
+procs = {}
+
+#Variable to save the current scope
+current_scope = 'global'
+
 #Gramatica
 def p_progam(p):
     '''
-    program : PROGRAM ID ';' declare_vars prog_body
+    program : t_prog ID ';' declare_vars prog_body
     '''
+    print(procs)
+
+def p_t_prog(p):
+    '''
+    t_prog : PROGRAM
+    '''
+    procs['global'] = []
 
 def p_declare_vars(p):
     '''
@@ -106,6 +120,9 @@ def p_var(p):
     '''
     var : tipo ID
     '''
+    print(p[1])
+    if current_scope == 'global':
+        procs[current_scope].append([p[2],p[1]])
 
 def p_initialize_var(p):
     '''
@@ -126,6 +143,7 @@ def p_tipo(p):
             | CHAR
             | BOOL
     '''
+    p[0] = p[1].upper()
 
 def p_constants(p):
     '''
@@ -143,20 +161,41 @@ def p_prog_body(p):
 
 def p_main_body(p):
     '''
-    main_body : MAIN '(' ')' '{' declare_vars estatuto '}'
+    main_body : t_main '(' ')' '{' declare_vars estatuto '}'
     '''
+    global current_scope
+    current_scope = 'global'
+
+def p_t_main(p):
+    '''
+    t_main : MAIN
+    '''
+    global current_scope
+    current_scope = 'main'
 
 def p_funciones(p):
     '''
-    funciones : func_tipo ID '(' params ')' '{' declare_vars estatuto return_body '}' funciones
+    funciones : t_new_func '(' params ')' '{' declare_vars estatuto return_body '}' funciones
                 | empty
     '''
+    global current_scope
+    current_scope = 'global'
+
+def p_t_new_func(p):
+    '''
+    t_new_func : func_tipo ID
+    '''
+    global current_scope
+    current_scope = p[2]
+    global procs
+    procs[current_scope] = [p[1], [], []]
 
 def p_func_tipo(p):
     '''
     func_tipo : tipo
                 | VOID
     '''
+    p[0] = p[1].upper()
 
 def p_params(p):
     '''
