@@ -91,6 +91,9 @@ procs = {}
 #Variable to save the current scope
 current_scope = 'global'
 
+#Variable to check if we are dealing with parameters
+inParams = False
+
 #Gramatica
 def p_progam(p):
     '''
@@ -128,6 +131,12 @@ def p_var(p):
             print("ERROR: variable con el mismo nombre declarada dos veces")
         else:
             procs[current_scope][p[2]]=p[1]
+
+    else:
+        if p[2] in procs['global'].keys() or p[2] in procs[current_scope][2].keys():
+            print("ERROR: variable con el mismo nombre declarada dos veces")
+        else:
+            procs[current_scope][2][p[2]]=p[1]
 
 def p_initialize_var(p):
     '''
@@ -170,6 +179,7 @@ def p_main_body(p):
     '''
     global current_scope
     current_scope = 'global'
+    #creo que hay que marcar end aqui
 
 def p_t_main(p):
     '''
