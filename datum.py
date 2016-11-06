@@ -69,7 +69,7 @@ lineNumber = 1
 def t_newline(t):
     r'\n+'
     global lineNumber
-    lineNumber += 1
+    lineNumber += len(t.value)
     t.lexer.lineno += len(t.value)
 
 def t_ID(t):
