@@ -95,6 +95,16 @@ current_scope = 'global'
 #Variable to check if we are dealing with parameters
 inParams = False
 
+#Lista de cuadruplos generados.
+#Nota: cada cuadruplo lista de 4 elementos.
+cuadruplos = []
+
+#Pilas utilizadas en generacion de cuadruplos
+pilaO = []
+pOper = []
+pSaltos = []
+pTipos = []
+
 #Gramatica
 def p_progam(p):
     '''
