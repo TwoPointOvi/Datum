@@ -85,6 +85,13 @@ def t_error(t):
 #Build lexer
 lex.lex()
 
+#diccionario para convertir el numero del tipo al string del tipo
+numToTipo = {   1:'int',
+                2:'float',
+                3:'bool',
+                4:'char',
+                5:'string',
+                -1:'ERROR'}
 
 #Tabla Procedimiento
 procs = {}
@@ -98,12 +105,16 @@ inParams = False
 #Lista de cuadruplos generados.
 #Nota: cada cuadruplo lista de 4 elementos.
 cuadruplos = []
+contCuadruplos = 0
 
 #Pilas utilizadas en generacion de cuadruplos
 pilaO = []
 pOper = []
 pSaltos = []
 pTipos = []
+
+#Contadores dir mem
+contTemp
 
 #Gramatica
 def p_progam(p):
@@ -379,8 +390,34 @@ def p_op_vector3(p):
 
 def p_expresion(p):
     '''
-    expresion : exp expresion1
+    expresion : exp codigoExpAccion9 expresion1
     '''
+
+def p_codigoExpAccion9(p):
+    '''
+    codigoExpAccion9 :
+    '''
+    if pOper[len(pOper)-1] == '>' or pOper[len(pOper)-1] == '<' or
+        pOper[len(pOper)-1] == '<=' or pOper[len(pOper)-1] == '>=' or
+        pOper[len(pOper)-1] == '==' or pOper[len(pOper)-1] == '<>':
+        operador = pOper.pop()
+        tipoOp2 = pTipos.pop()
+        tipoOp1 = pTipos.pop()
+        if scube.semantic_cube[tipoOp1][tipoOp2][operador] > 0:
+            operando2 = pilaO.pop()
+            operando1 = pilaO.pop()
+            resultado = contTemp
+            nuevoCuad = [operador, operando1, operando2, resultado]
+            global contCuadruplos
+            contCuadruplos += 1
+            global cuadruplos
+            cuadruplos.append(nuevoCuad)
+            #regresar temp al avail si se desocupo
+            pilaO.append(resultado)
+            pTipos.append(numToTipo[scube.semantic_cube[tipoOp1][tipoOp2][operador]])
+
+        else:
+            print("ERROR: operacion " + operador + " con tipos incompatibles.")
 
 def p_expresion1(p):
     '''
@@ -394,11 +431,38 @@ def p_expresion1(p):
                 | OR expresion
                 | empty
     '''
+    #codigoExpAccion8
+    if len(p) > 2:
+        pOper.append(p[1])
 
 def p_exp(p):
     '''
-    exp : termino exp1
+    exp : termino codigoExpAccion4 exp1
     '''
+
+def p_codigoExpAccion4(p):
+    '''
+    codigoExpAccion4 :
+    '''
+    if pOper[len(pOper)-1] == '+' or pOper[len(pOper)-1] == '-':
+        operador = pOper.pop()
+        tipoOp2 = pTipos.pop()
+        tipoOp1 = pTipos.pop()
+        if scube.semantic_cube[tipoOp1][tipoOp2][operador] > 0:
+            operando2 = pilaO.pop()
+            operando1 = pilaO.pop()
+            resultado = contTemp
+            nuevoCuad = [operador, operando1, operando2, resultado]
+            global contCuadruplos
+            contCuadruplos += 1
+            global cuadruplos
+            cuadruplos.append(nuevoCuad)
+            #regresar temp al avail si se desocupo
+            pilaO.append(resultado)
+            pTipos.append(numToTipo[scube.semantic_cube[tipoOp1][tipoOp2][operador]])
+
+        else:
+            print("ERROR: operacion " + operador + " con tipos incompatibles.")
 
 def p_exp1(p):
     '''
@@ -406,11 +470,38 @@ def p_exp1(p):
             | '-' exp
             | empty
     '''
+    #codigoExpAccion2
+    if len(p) > 2:
+        pOper.append(p[1])
 
 def p_termino(p):
     '''
-    termino : exponente termino1
+    termino : exponente codigoExpAccion5 termino1
     '''
+
+def p_codigoExpAccion5(p):
+    '''
+    codigoExpAccion5 :
+    '''
+    if pOper[len(pOper)-1] == '*' or pOper[len(pOper)-1] == '/':
+        operador = pOper.pop()
+        tipoOp2 = pTipos.pop()
+        tipoOp1 = pTipos.pop()
+        if scube.semantic_cube[tipoOp1][tipoOp2][operador] > 0:
+            operando2 = pilaO.pop()
+            operando1 = pilaO.pop()
+            resultado = contTemp
+            nuevoCuad = [operador, operando1, operando2, resultado]
+            global contCuadruplos
+            contCuadruplos += 1
+            global cuadruplos
+            cuadruplos.append(nuevoCuad)
+            #regresar temp al avail si se desocupo
+            pilaO.append(resultado)
+            pTipos.append(numToTipo[scube.semantic_cube[tipoOp1][tipoOp2][operador]])
+
+        else:
+            print("ERROR: operacion " + operador + " con tipos incompatibles.")
 
 def p_termino1(p):
     '''
@@ -418,11 +509,38 @@ def p_termino1(p):
                 | '/' termino
                 | empty
     '''
+    #codigoExpAccion3
+    if len(p) > 2:
+        pOper.append(p[1])
 
 def p_exponente(p):
     '''
-    exponente : factor exponente1
+    exponente : factor codigoExpAccion5_5 exponente1
     '''
+
+def p_codigoExpAccion5_5(p):
+    '''
+    codigoExpAccion5_5 :
+    '''
+    if pOper[len(pOper)-1] == '^':
+        operador = pOper.pop()
+        tipoOp2 = pTipos.pop()
+        tipoOp1 = pTipos.pop()
+        if scube.semantic_cube[tipoOp1][tipoOp2][operador] > 0:
+            operando2 = pilaO.pop()
+            operando1 = pilaO.pop()
+            resultado = contTemp
+            nuevoCuad = [operador, operando1, operando2, resultado]
+            global contCuadruplos
+            contCuadruplos += 1
+            global cuadruplos
+            cuadruplos.append(nuevoCuad)
+            #regresar temp al avail si se desocupo
+            pilaO.append(resultado)
+            pTipos.append(numToTipo[scube.semantic_cube[tipoOp1][tipoOp2][operador]])
+
+        else:
+            print("ERROR: operacion " + operador + " con tipos incompatibles.")
 
 def p_exponente1(p):
     '''
@@ -432,10 +550,24 @@ def p_exponente1(p):
 
 def p_factor(p):
     '''
-    factor : '(' expresion ')'
-            | ID factor1
+    factor : '(' inicio_parentesis expresion fin_parentesis ')'
+            | codigoExpAccion1
             | constants
     '''
+
+def p_inicio_parentesis(p):
+    '''
+    inicio_parentesis :
+    '''
+    #codigoExpAccion6
+    pOper.append('(')
+
+def p_fin_parentesis(p):
+    '''
+    fin_parentesis :
+    '''
+    #codigoExpAccion7
+    pOper.pop()
 
 def p_factor1(p):
     '''
@@ -455,6 +587,20 @@ def p_factor3(p):
     factor3 : ',' exp factor2
             |
     '''
+
+def p_codigoExpAccion1(p):
+    '''
+    codigoExpAccion1 : ID factor1
+    '''
+    pilaO.append(p[1])
+    if p[1] in procs[current_scope][2].keys():
+        tipo = procs[current_scope][2][p[1]]
+    else if p[1] in procs['global'].keys():
+        tipo = procs['global'][p[1]]
+    else:
+        print("ERROR: variable no declarada")
+    pTipos.append(tipo)
+
 
 def p_empty(p):
     '''
