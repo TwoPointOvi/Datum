@@ -166,7 +166,7 @@ def p_var(p):
 
 def p_initialize_var(p):
     '''
-    initialize_var : '=' constants
+    initialize_var : '=' expresion
                     | empty
     '''
 
@@ -310,19 +310,87 @@ def p_asignacion2(p):
 
 def p_condicion(p):
     '''
-    condicion : IF '(' expresion ')' bloque condicion1
+    condicion : IF '(' expresion ')' condicion_accion1 bloque condicion1 condicion_accion3
     '''
+
+def p_condicion_accion1(p):
+    '''
+    condicion_accion1 :
+    '''
+    aux = pTipos.pop()
+    if aux != 'bool':
+        print('Type mismatch in line %d.' % lineNumber)
+    else:
+        resultado = pilaO.pop()
+        #Generar el cuadruplo
+        cuadruplos.append(['GOTOF', resultado, None, None])
+        global contCuadruplos
+        contCuadruplos += 1
+
+        pSaltos.append(contCuadruplos - 1)
 
 def p_condicion1(p):
     '''
-    condicion1 : ELSE bloque
+    condicion1 : ELSE condicion_accion2 bloque
                 | empty
     '''
 
+def p_condicion_accion2(p):
+    '''
+    condicion_accion2 :
+    '''
+    cuadruplos.append(['GOTO', None, None, None])
+    falso = pSaltos.pop()
+    cuadruplos[falso][3] = contCuadruplos
+
+    pSaltos.append(cuadruplos - 1)
+
+def p_condicion_accion3(p):
+    '''
+    condicion_accion3 :
+    '''
+    fin = pSaltos.pop()
+    cuadruplos[fin][3] = contCuadruplos
+
 def p_repeticion(p):
     '''
-    repeticion : WHILE '(' expresion ')' bloque
+    repeticion : WHILE repeticion_accion1 '(' expresion ')' repeticion_accion2 bloque repeticion_accion3
     '''
+
+def repeticion_accion1(p):
+    '''
+    repeticion_accion1 :
+    '''
+    pSaltos.append(contCuadruplos)
+
+def repeticion_accion2(p):
+    '''
+    repeticion_accion2 :
+    '''
+    aux = pTipos.pop()
+    if aux != 'bool':
+        print('Type mismatch in %d.' % lineNumber)
+    else:
+        resultado = pilaO.pop()
+        #Generar cuadruplo
+        cuadruplos.append(['GOTOF', resultado, None, None])
+        global contCuadruplos
+        contCuadruplos += 1
+
+        pSaltos.append(contCuadruplos - 1)
+
+def p_repeticion_accion3(p):
+    '''
+    repeticion_accion3 :
+    '''
+    falso = pSaltos.pop()
+    retorno = pSaltos.pop()
+
+    cuadruplos.append('GOTO', None, None, retorno)
+    global contCuadruplos
+    contCuadruplos += 1
+
+    contCuadruplos[falso][3] = contCuadruplos
 
 def p_escritura(p):
     '''
@@ -622,3 +690,6 @@ else:
 
 with open(fileName) as codeFile:
     parser.parse(codeFile.read())
+
+for cuadruplo in cuadruplos:
+    print(cuadruplo)
