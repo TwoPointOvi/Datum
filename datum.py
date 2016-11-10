@@ -357,6 +357,8 @@ def p_condicion_accion2(p):
     condicion_accion2 :
     '''
     cuadruplos.append(['GOTO', None, None, None])
+    global contCuadruplos
+    contCuadruplos += 1
     falso = pSaltos.pop()
     cuadruplos[falso][3] = contCuadruplos
 
