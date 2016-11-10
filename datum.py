@@ -155,6 +155,7 @@ def p_var(p):
             procs[current_scope][p[2]]=p[1]
 
     else:
+        print procs
         if p[2] in procs['global'].keys() or p[2] in procs[current_scope][2].keys():
             print("ERROR: variable con el mismo nombre declarada dos veces")
         else:
@@ -210,8 +211,13 @@ def p_t_main(p):
     '''
     t_main : MAIN
     '''
+    scope = p[1]
+    if scope in procs:
+        print('ERROR: Funcion repetida en linea %d.' % lineNumber)
     global current_scope
-    current_scope = 'main'
+    current_scope = scope
+    global procs
+    procs[current_scope] = [p[1], [], {}, contCuadruplos]
 
 def p_funciones(p):
     '''
@@ -360,7 +366,7 @@ def p_condicion_accion2(p):
     falso = pSaltos.pop()
     cuadruplos[falso][3] = contCuadruplos
 
-    pSaltos.append(cuadruplos - 1)
+    pSaltos.append(contCuadruplos - 1)
 
 def p_condicion_accion3(p):
     '''
