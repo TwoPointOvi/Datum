@@ -93,6 +93,9 @@ numToTipo = {   1:'int',
                 5:'string',
                 -1:'ERROR'}
 
+#Tabla de constantes
+constantes = {}
+
 #Tabla Procedimiento
 procs = {}
 
@@ -123,6 +126,8 @@ def p_progam(p):
     '''
     global procs
     print(procs)
+    global constantes
+    print constantes
 
 def p_t_prog(p):
     '''
@@ -187,12 +192,56 @@ def p_tipo(p):
 
 def p_constants(p):
     '''
-    constants : CTE_INT
-            | CTE_FLOAT
-            | CTE_STR
-            | CTE_CHAR
-            | CTE_BOOL
+    constants : cte_int
+            | cte_float
+            | cte_str
+            | cte_char
+            | cte_bool
     '''
+def p_cte_int(p):
+    '''
+    cte_int : CTE_INT
+    '''
+    if(p[1] not in constantes.keys()):
+        constantes[p[1]] = 'INT'
+    pilaO.append(p[1])
+    pTipos.append(constantes[p[1]])
+
+def p_cte_float(p):
+    '''
+    cte_float : CTE_FLOAT
+    '''
+    if(p[1] not in constantes.keys()):
+        constantes[p[1]] = 'FLOAT'
+    pilaO.append(p[1])
+    pTipos.append(constantes[p[1]])
+
+def p_cte_bool(p):
+    '''
+    cte_bool : CTE_BOOL
+    '''
+    if(p[1] not in constantes.keys()):
+        constantes[p[1]] = 'BOOL'
+    pilaO.append(p[1])
+    pTipos.append(constantes[p[1]])
+
+def p_cte_char(p):
+    '''
+    cte_char : CTE_CHAR
+    '''
+    if(p[1] not in constantes.keys()):
+        constantes[p[1]] = 'CHAR'
+    pilaO.append(p[1])
+    pTipos.append(constantes[p[1]])
+
+def p_cte_str(p):
+    '''
+    cte_str : CTE_STR
+    '''
+    if(p[1] not in constantes.keys()):
+        constantes[p[1]] = 'STRING'
+    pilaO.append(p[1])
+    pTipos.append(constantes[p[1]])
 
 def p_prog_body(p):
     '''
@@ -744,8 +793,6 @@ def p_factor1(p):
             tipo = procs['global'][p[1]]
         else:
             print("ERROR: variable no declarada")
-        print "MSJ TEST"
-        print(p[1])
         pTipos.append(tipo)
 
 def p_factor2(p):
