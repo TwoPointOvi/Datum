@@ -238,7 +238,7 @@ def p_end_func(p):
     end_func :
     '''
     #Liberar tabla de variables del procedimiento
-    cuadruplos.append('RETORNO', None, None, None)
+    cuadruplos.append(['RETORNO', None, None, None])
     global contCuadruplos
     contCuadruplos += 1
 
