@@ -316,7 +316,7 @@ def p_estatuto1(p):
 
 def p_estatuto2(p):
     '''
-    estatuto2 : estatuto1
+    estatuto2 : estatuto
                 | empty
     '''
 
