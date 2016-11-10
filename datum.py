@@ -731,10 +731,22 @@ def p_fin_parentesis(p):
 
 def p_factor1(p):
     '''
-    factor1 : '[' exp ']'
-            | '(' factor2 ')'
-            | empty
+    factor1 : ID '[' exp ']'
+            | ID '(' factor2 ')'
+            | ID
     '''
+    if(len(p)<3):
+        pilaO.append(p[1])
+        tipo = ""
+        if p[1] in procs[current_scope][2].keys():
+            tipo = procs[current_scope][2][p[1]]
+        elif p[1] in procs['global'].keys():
+            tipo = procs['global'][p[1]]
+        else:
+            print("ERROR: variable no declarada")
+        print "MSJ TEST"
+        print(p[1])
+        pTipos.append(tipo)
 
 def p_factor2(p):
     '''
@@ -750,19 +762,8 @@ def p_factor3(p):
 
 def p_codigoExpAccion1(p):
     '''
-    codigoExpAccion1 : ID factor1
+    codigoExpAccion1 : factor1
     '''
-    pilaO.append(p[1])
-    tipo = ""
-    if p[1] in procs[current_scope][2].keys():
-        tipo = procs[current_scope][2][p[1]]
-    elif p[1] in procs['global'].keys():
-        tipo = procs['global'][p[1]]
-    else:
-        print("ERROR: variable no declarada")
-    print "MSJ TEST"
-    print(p[1])
-    pTipos.append(tipo)
 
 
 def p_empty(p):
