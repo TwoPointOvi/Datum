@@ -151,8 +151,7 @@ def p_var(p):
             global inParams
             if inParams:
                 procs[current_scope][1].append(p[1])
-            else:
-                procs[current_scope][2][p[2]]=p[1]
+            procs[current_scope][2][p[2]] = p[1]
 
 def p_initialize_var(p):
     '''
@@ -206,11 +205,26 @@ def p_t_main(p):
 
 def p_funciones(p):
     '''
-    funciones : t_new_func '(' t_inParams params t_outParams ')' '{' declare_vars estatuto return_body '}' funciones
+    funciones : t_new_func '(' t_inParams params t_outParams ')' '{' declare_vars inicio_cuadruplo estatuto return_body '}' end_func funciones
                 | empty
     '''
     global current_scope
     current_scope = 'global'
+
+def p_inicio_cuadruplo(p):
+    '''
+    inicio_cuadruplo :
+    '''
+    procs[current_scope][3] = contCuadruplos
+
+def p_end_func(p):
+    '''
+    end_func :
+    '''
+    #Liberar tabla de variables del procedimiento
+    cuadruplos.append('RETORNO', None, None, None)
+    global contCuadruplos
+    contCuadruplos += 1
 
 def p_t_inParams(p):
     '''
@@ -230,10 +244,13 @@ def p_t_new_func(p):
     '''
     t_new_func : func_tipo ID
     '''
+    scope = p[2]
+    if scope in procs:
+        print('ERROR: Funcion repetida en linea %d.' % lineNumber)
     global current_scope
-    current_scope = p[2]
+    current_scope = scope
     global procs
-    procs[current_scope] = [p[1], [], {}]
+    procs[current_scope] = [p[1], [], {}, contCuadruplos]
 
 def p_func_tipo(p):
     '''
@@ -309,7 +326,7 @@ def p_condicion_accion1(p):
     '''
     aux = pTipos.pop()
     if aux != 'bool':
-        print('Type mismatch in line %d.' % lineNumber)
+        print('ERROR: Type mismatch in line %d.' % lineNumber)
     else:
         resultado = pilaO.pop()
         #Generar el cuadruplo
@@ -359,7 +376,7 @@ def repeticion_accion2(p):
     '''
     aux = pTipos.pop()
     if aux != 'bool':
-        print('Type mismatch in %d.' % lineNumber)
+        print('ERROR: Type mismatch in %d.' % lineNumber)
     else:
         resultado = pilaO.pop()
         #Generar cuadruplo
@@ -521,8 +538,8 @@ def p_factor2(p):
 
 def p_factor3(p):
     '''
-    factor3 : ',' exp factor2
-            |
+    factor3 : ',' exp factor3
+            | empty
     '''
 
 def p_empty(p):
