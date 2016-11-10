@@ -114,7 +114,7 @@ pSaltos = []
 pTipos = []
 
 #Contadores dir mem
-contTemp
+contTemp=0
 
 #Gramatica
 def p_progam(p):
@@ -357,40 +357,55 @@ def p_repeticion(p):
     repeticion : WHILE repeticion_accion1 '(' expresion ')' repeticion_accion2 bloque repeticion_accion3
     '''
 
-def repeticion_accion1(p):
+def p_repeticion_accion1(p):
     '''
     repeticion_accion1 :
     '''
     pSaltos.append(contCuadruplos)
 
-def repeticion_accion2(p):
+def p_repeticion_accion2(p):
     '''
     repeticion_accion2 :
     '''
+    print("saltos before if aux rep accion 2")
+    print(pSaltos)
+    print pTipos
+    print pOper
+    print pilaO
     aux = pTipos.pop()
     if aux != 'bool':
         print('Type mismatch in %d.' % lineNumber)
     else:
+        print("saltos else")
+        print(pSaltos)
         resultado = pilaO.pop()
         #Generar cuadruplo
         cuadruplos.append(['GOTOF', resultado, None, None])
         global contCuadruplos
         contCuadruplos += 1
 
+        print("saltos before")
+        print(pSaltos)
         pSaltos.append(contCuadruplos - 1)
+        print("saltos after")
+        print(pSaltos)
 
 def p_repeticion_accion3(p):
     '''
     repeticion_accion3 :
     '''
+    print("saltos ")
+    print(pSaltos)
     falso = pSaltos.pop()
+    print("saltos ")
+    print(pSaltos)
     retorno = pSaltos.pop()
 
-    cuadruplos.append('GOTO', None, None, retorno)
+    cuadruplos.append(['GOTO', None, None, retorno])
     global contCuadruplos
     contCuadruplos += 1
 
-    contCuadruplos[falso][3] = contCuadruplos
+    cuadruplos[falso][3] = contCuadruplos
 
 def p_escritura(p):
     '''
@@ -465,43 +480,69 @@ def p_codigoExpAccion9(p):
     '''
     codigoExpAccion9 :
     '''
-    if pOper[len(pOper)-1] == '>' or pOper[len(pOper)-1] == '<' or
-        pOper[len(pOper)-1] == '<=' or pOper[len(pOper)-1] == '>=' or
-        pOper[len(pOper)-1] == '==' or pOper[len(pOper)-1] == '<>':
-        operador = pOper.pop()
-        tipoOp2 = pTipos.pop()
-        tipoOp1 = pTipos.pop()
-        if scube.semantic_cube[tipoOp1][tipoOp2][operador] > 0:
-            operando2 = pilaO.pop()
-            operando1 = pilaO.pop()
-            resultado = contTemp
-            nuevoCuad = [operador, operando1, operando2, resultado]
-            global contCuadruplos
-            contCuadruplos += 1
-            global cuadruplos
-            cuadruplos.append(nuevoCuad)
-            #regresar temp al avail si se desocupo
-            pilaO.append(resultado)
-            pTipos.append(numToTipo[scube.semantic_cube[tipoOp1][tipoOp2][operador]])
+    print "codgo accion 9"
+    print(len(pOper))
+    print pilaO
+    print pOper
+    if len(pOper) > 0:
+        print "inside first if cea9"
+        print pOper
+        print pilaO
+        print pOper[len(pOper)-1]
+        if (pOper[len(pOper)-1] == '>' or pOper[len(pOper)-1] == '<' or
+            pOper[len(pOper)-1] == '>=' or pOper[len(pOper)-1] == '=>' or
+            pOper[len(pOper)-1] == '==' or pOper[len(pOper)-1] == '<>'):
+            operador = pOper.pop()
+            tipoOp2 = pTipos.pop()
+            tipoOp1 = pTipos.pop()
+            print "adios 1"
+            print tipoOp1
+            print tipoOp2
+            print operador
+            if scube.semantic_cube[tipoOp1][tipoOp2][operador] > 0:
+                print "adios 2"
+                operando2 = pilaO.pop()
+                operando1 = pilaO.pop()
+                global contTemp
+                resultado = contTemp
+                contTemp += 1
+                nuevoCuad = [operador, operando1, operando2, resultado]
+                global contCuadruplos
+                contCuadruplos += 1
+                global cuadruplos
+                cuadruplos.append(nuevoCuad)
+                #regresar temp al avail si se desocupo
+                pilaO.append(resultado)
+                pTipos.append(numToTipo[scube.semantic_cube[tipoOp1][tipoOp2][operador]])
 
-        else:
-            print("ERROR: operacion " + operador + " con tipos incompatibles.")
+            else:
+                print("ERROR: operacion " + operador + " con tipos incompatibles.")
 
 def p_expresion1(p):
     '''
-    expresion1 : '>' expresion
-                | '<' expresion
-                | DEQUAL expresion
-                | LESSEQUAL expresion
-                | MOREEQUAL expresion
-                | DIFF expresion
-                | AND expresion
-                | OR expresion
+    expresion1 : op_relacional expresion
                 | empty
     '''
+
+
+def p_op_relacional(p):
+    '''
+    op_relacional :  '>'
+                | '<'
+                | DEQUAL
+                | LESSEQUAL
+                | MOREEQUAL
+                | DIFF
+                | AND
+                | OR
+    '''
     #codigoExpAccion8
-    if len(p) > 2:
+    if p[1] != None:
+        print "poper before append op rel"
+        print pOper
         pOper.append(p[1])
+        print "pOper after append op rel"
+        print pOper
 
 def p_exp(p):
     '''
@@ -512,34 +553,42 @@ def p_codigoExpAccion4(p):
     '''
     codigoExpAccion4 :
     '''
-    if pOper[len(pOper)-1] == '+' or pOper[len(pOper)-1] == '-':
-        operador = pOper.pop()
-        tipoOp2 = pTipos.pop()
-        tipoOp1 = pTipos.pop()
-        if scube.semantic_cube[tipoOp1][tipoOp2][operador] > 0:
-            operando2 = pilaO.pop()
-            operando1 = pilaO.pop()
-            resultado = contTemp
-            nuevoCuad = [operador, operando1, operando2, resultado]
-            global contCuadruplos
-            contCuadruplos += 1
-            global cuadruplos
-            cuadruplos.append(nuevoCuad)
-            #regresar temp al avail si se desocupo
-            pilaO.append(resultado)
-            pTipos.append(numToTipo[scube.semantic_cube[tipoOp1][tipoOp2][operador]])
+    if len(pOper) > 0:
+        if pOper[len(pOper)-1] == '+' or pOper[len(pOper)-1] == '-':
+            operador = pOper.pop()
+            tipoOp2 = pTipos.pop()
+            tipoOp1 = pTipos.pop()
+            if scube.semantic_cube[tipoOp1][tipoOp2][operador] > 0:
+                operando2 = pilaO.pop()
+                operando1 = pilaO.pop()
+                global contTemp
+                resultado = contTemp
+                contTemp += 1
+                nuevoCuad = [operador, operando1, operando2, resultado]
+                global contCuadruplos
+                contCuadruplos += 1
+                global cuadruplos
+                cuadruplos.append(nuevoCuad)
+                #regresar temp al avail si se desocupo
+                pilaO.append(resultado)
+                pTipos.append(numToTipo[scube.semantic_cube[tipoOp1][tipoOp2][operador]])
 
-        else:
-            print("ERROR: operacion " + operador + " con tipos incompatibles.")
+            else:
+                print("ERROR: operacion " + operador + " con tipos incompatibles.")
 
 def p_exp1(p):
     '''
-    exp1 : '+' exp
-            | '-' exp
+    exp1 : op_sum_res exp
             | empty
     '''
+
+def p_op_sum_res(p):
+    '''
+    op_sum_res : '+'
+                | '-'
+    '''
     #codigoExpAccion2
-    if len(p) > 2:
+    if p[1] != None:
         pOper.append(p[1])
 
 def p_termino(p):
@@ -551,34 +600,42 @@ def p_codigoExpAccion5(p):
     '''
     codigoExpAccion5 :
     '''
-    if pOper[len(pOper)-1] == '*' or pOper[len(pOper)-1] == '/':
-        operador = pOper.pop()
-        tipoOp2 = pTipos.pop()
-        tipoOp1 = pTipos.pop()
-        if scube.semantic_cube[tipoOp1][tipoOp2][operador] > 0:
-            operando2 = pilaO.pop()
-            operando1 = pilaO.pop()
-            resultado = contTemp
-            nuevoCuad = [operador, operando1, operando2, resultado]
-            global contCuadruplos
-            contCuadruplos += 1
-            global cuadruplos
-            cuadruplos.append(nuevoCuad)
-            #regresar temp al avail si se desocupo
-            pilaO.append(resultado)
-            pTipos.append(numToTipo[scube.semantic_cube[tipoOp1][tipoOp2][operador]])
+    if len(pOper) > 0:
+        if pOper[len(pOper)-1] == '*' or pOper[len(pOper)-1] == '/':
+            operador = pOper.pop()
+            tipoOp2 = pTipos.pop()
+            tipoOp1 = pTipos.pop()
+            if scube.semantic_cube[tipoOp1][tipoOp2][operador] > 0:
+                operando2 = pilaO.pop()
+                operando1 = pilaO.pop()
+                global contTemp
+                resultado = contTemp
+                contTemp += 1
+                nuevoCuad = [operador, operando1, operando2, resultado]
+                global contCuadruplos
+                contCuadruplos += 1
+                global cuadruplos
+                cuadruplos.append(nuevoCuad)
+                #regresar temp al avail si se desocupo
+                pilaO.append(resultado)
+                pTipos.append(numToTipo[scube.semantic_cube[tipoOp1][tipoOp2][operador]])
 
-        else:
-            print("ERROR: operacion " + operador + " con tipos incompatibles.")
+            else:
+                print("ERROR: operacion " + operador + " con tipos incompatibles.")
 
 def p_termino1(p):
     '''
-    termino1 : '*' termino
-                | '/' termino
+    termino1 : op_mult_div termino
                 | empty
     '''
+
+def p_op_mult_div(p):
+    '''
+    op_mult_div : '*'
+                | '/'
+    '''
     #codigoExpAccion3
-    if len(p) > 2:
+    if p[1] != None:
         pOper.append(p[1])
 
 def p_exponente(p):
@@ -590,31 +647,41 @@ def p_codigoExpAccion5_5(p):
     '''
     codigoExpAccion5_5 :
     '''
-    if pOper[len(pOper)-1] == '^':
-        operador = pOper.pop()
-        tipoOp2 = pTipos.pop()
-        tipoOp1 = pTipos.pop()
-        if scube.semantic_cube[tipoOp1][tipoOp2][operador] > 0:
-            operando2 = pilaO.pop()
-            operando1 = pilaO.pop()
-            resultado = contTemp
-            nuevoCuad = [operador, operando1, operando2, resultado]
-            global contCuadruplos
-            contCuadruplos += 1
-            global cuadruplos
-            cuadruplos.append(nuevoCuad)
-            #regresar temp al avail si se desocupo
-            pilaO.append(resultado)
-            pTipos.append(numToTipo[scube.semantic_cube[tipoOp1][tipoOp2][operador]])
+    if len(pOper) > 0:
+        if pOper[len(pOper)-1] == '^':
+            operador = pOper.pop()
+            tipoOp2 = pTipos.pop()
+            tipoOp1 = pTipos.pop()
+            if scube.semantic_cube[tipoOp1][tipoOp2][operador] > 0:
+                operando2 = pilaO.pop()
+                operando1 = pilaO.pop()
+                global contTemp
+                resultado = contTemp
+                contTemp += 1
+                nuevoCuad = [operador, operando1, operando2, resultado]
+                global contCuadruplos
+                contCuadruplos += 1
+                global cuadruplos
+                cuadruplos.append(nuevoCuad)
+                #regresar temp al avail si se desocupo
+                pilaO.append(resultado)
+                pTipos.append(numToTipo[scube.semantic_cube[tipoOp1][tipoOp2][operador]])
 
-        else:
-            print("ERROR: operacion " + operador + " con tipos incompatibles.")
+            else:
+                print("ERROR: operacion " + operador + " con tipos incompatibles.")
 
 def p_exponente1(p):
     '''
-    exponente1 : '^' exponente
+    exponente1 : op_exp exponente
                 | empty
     '''
+def p_op_exp(p):
+    '''
+    op_exp : '^'
+    '''
+    #codigoExpAccion5_5
+    if p[1] != None:
+        pOper.append(p[1])
 
 def p_factor(p):
     '''
@@ -653,7 +720,7 @@ def p_factor2(p):
 def p_factor3(p):
     '''
     factor3 : ',' exp factor2
-            |
+            | empty
     '''
 
 def p_codigoExpAccion1(p):
@@ -661,12 +728,15 @@ def p_codigoExpAccion1(p):
     codigoExpAccion1 : ID factor1
     '''
     pilaO.append(p[1])
+    tipo = ""
     if p[1] in procs[current_scope][2].keys():
         tipo = procs[current_scope][2][p[1]]
-    else if p[1] in procs['global'].keys():
+    elif p[1] in procs['global'].keys():
         tipo = procs['global'][p[1]]
     else:
         print("ERROR: variable no declarada")
+    print "MSJ TEST"
+    print(p[1])
     pTipos.append(tipo)
 
 
