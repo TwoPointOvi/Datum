@@ -1,0 +1,28 @@
+program test;
+int uno;
+float dos;
+bool tres;
+{
+
+int ovi(int a) {
+    a = a;
+    return a;
+}
+
+main() {
+	int a;
+	int b;
+	int c;
+    c = a + 10;
+    if(b>a) {
+        c = c - a;
+    }
+    if(a<c) {
+        c = c -b;
+    }
+	print (c);
+    while(c>a) {
+        a = a + b;
+    }
+}
+}
