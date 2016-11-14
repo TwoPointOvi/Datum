@@ -4,14 +4,14 @@ float dos;
 bool tres;
 {
 
-int ovi(int a) {
-    a = a;
+int ovi(int a, float b) {
+    a = b;
     return a;
 }
 
 main() {
 	int a;
-	int b;
+	float b;
 	int c=0;
     c = a + b+ c;
     if(b>a) {
