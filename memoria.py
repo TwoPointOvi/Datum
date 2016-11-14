@@ -6,11 +6,11 @@ class Memoria:
         self.CHAR_MEMORIA = inicio + 40000
         self.STRING_MEMORIA = inicio + 50000
 
-        self.intCount = 0
-        self.floatCount = 0
-        self.boolCount = 0
-        self.charCount = 0
-        self.stringCount = 0
+        self.intCount = -1
+        self.floatCount = -1
+        self.boolCount = -1
+        self.charCount = -1
+        self.stringCount = -1
 
     def generarEspacioMemoria(self, tipo):
         if tipo == 'INT':
