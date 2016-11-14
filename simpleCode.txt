@@ -12,7 +12,7 @@ int ovi(int a) {
 main() {
 	int a;
 	int b;
-	int c;
+	int c=0;
     c = a + b+ c;
     if(b>a) {
         c = c - a;

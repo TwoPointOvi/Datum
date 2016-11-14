@@ -1,6 +1,7 @@
 import ply.lex as lex
 import ply.yacc as yacc
 import semantic_cube as scube
+import memoria as mem
 
 #Lenguaje Datum
 
@@ -99,6 +100,10 @@ constantes = {}
 #Tabla Procedimiento
 procs = {}
 
+#Objetos memoria virtual para funciones
+func_memLocal = mem.Memoria()
+func_memTemp = mem.Memoria()
+
 #Variable to save the current scope
 current_scope = 'global'
 
@@ -166,8 +171,8 @@ def p_var(p):
         else:
             global inParams
             if inParams:
-                procs[current_scope][1].append(p[1])
-            procs[current_scope][2][p[2]] = p[1]
+                procs[current_scope][1].append(func_memLocal.generarEspacioMemoria(p[1]))
+            procs[current_scope][2][p[2]] = func_memLocal.generarEspacioMemoria(p[1])
 
 def p_initialize_var(p):
     '''
@@ -583,13 +588,13 @@ def p_codigoExpAccion9(p):
             print tipoOp1
             print tipoOp2
             print operador
-            if scube.semantic_cube[tipoOp1][tipoOp2][operador] > 0:
+            tipoSCube = scube.semantic_cube[tipoOp1][tipoOp2][operador]
+            if tipoSCube > 0:
                 print "adios 2"
                 operando2 = pilaO.pop()
                 operando1 = pilaO.pop()
                 global contTemp
-                resultado = contTemp
-                contTemp += 1
+                resultado = func_memTemp.generarEspacioMemoria(numToTipo[tipoSCube])
                 nuevoCuad = [operador, operando1, operando2, resultado]
                 global contCuadruplos
                 contCuadruplos += 1
@@ -642,12 +647,12 @@ def p_codigoExpAccion4(p):
             operador = pOper.pop()
             tipoOp2 = pTipos.pop()
             tipoOp1 = pTipos.pop()
-            if scube.semantic_cube[tipoOp1][tipoOp2][operador] > 0:
+            tipoSCube = scube.semantic_cube[tipoOp1][tipoOp2][operador]
+            if tipoSCube > 0:
                 operando2 = pilaO.pop()
                 operando1 = pilaO.pop()
                 global contTemp
-                resultado = contTemp
-                contTemp += 1
+                resultado = func_memTemp.generarEspacioMemoria(numToTipo[tipoSCube])
                 nuevoCuad = [operador, operando1, operando2, resultado]
                 global contCuadruplos
                 contCuadruplos += 1
@@ -689,12 +694,12 @@ def p_codigoExpAccion5(p):
             operador = pOper.pop()
             tipoOp2 = pTipos.pop()
             tipoOp1 = pTipos.pop()
-            if scube.semantic_cube[tipoOp1][tipoOp2][operador] > 0:
+            tipoSCube = scube.semantic_cube[tipoOp1][tipoOp2][operador]
+            if tipoSCube > 0:
                 operando2 = pilaO.pop()
                 operando1 = pilaO.pop()
                 global contTemp
-                resultado = contTemp
-                contTemp += 1
+                resultado = func_memTemp.generarEspacioMemoria(numToTipo[tipoSCube])
                 nuevoCuad = [operador, operando1, operando2, resultado]
                 global contCuadruplos
                 contCuadruplos += 1
@@ -736,12 +741,12 @@ def p_codigoExpAccion5_5(p):
             operador = pOper.pop()
             tipoOp2 = pTipos.pop()
             tipoOp1 = pTipos.pop()
-            if scube.semantic_cube[tipoOp1][tipoOp2][operador] > 0:
+            tipoSCube = scube.semantic_cube[tipoOp1][tipoOp2][operador]
+            if tipoSCube > 0:
                 operando2 = pilaO.pop()
                 operando1 = pilaO.pop()
                 global contTemp
-                resultado = contTemp
-                contTemp += 1
+                resultado = func_memTemp.generarEspacioMemoria(numToTipo[tipoSCube])
                 nuevoCuad = [operador, operando1, operando2, resultado]
                 global contCuadruplos
                 contCuadruplos += 1
