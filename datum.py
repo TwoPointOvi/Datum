@@ -86,11 +86,11 @@ def t_error(t):
 lex.lex()
 
 #diccionario para convertir el numero del tipo al string del tipo
-numToTipo = {   1:'int',
-                2:'float',
-                3:'bool',
-                4:'char',
-                5:'string',
+numToTipo = {   1:'INT',
+                2:'FLOAT',
+                3:'BOOL',
+                4:'CHAR',
+                5:'STRING',
                 -1:'ERROR'}
 
 #Tabla de constantes
@@ -395,7 +395,7 @@ def p_condicion_accion1(p):
     condicion_accion1 :
     '''
     aux = pTipos.pop()
-    if aux != 'bool':
+    if aux != 'BOOL':
         print('ERROR: Type mismatch in line %d.' % lineNumber)
     else:
         resultado = pilaO.pop()
@@ -452,7 +452,7 @@ def p_repeticion_accion2(p):
     print pOper
     print pilaO
     aux = pTipos.pop()
-    if aux != 'bool':
+    if aux != 'BOOL':
         print('ERROR: Type mismatch in %d.' % lineNumber)
     else:
         print("saltos else")
