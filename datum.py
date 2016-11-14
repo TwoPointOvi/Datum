@@ -124,6 +124,16 @@ pTipos = []
 #Contadores dir mem
 contTemp=0
 
+#Inicios memoria
+inicioGlobales = 0
+inicioLocal = 50000
+inicioTemp = 110000
+inicioCTE = 160000
+
+#Memoria
+memGlobales = mem.Memoria(inicioGlobales)
+memConstantes = mem.Memoria(inicioCTE)
+
 #Gramatica
 def p_progam(p):
     '''
@@ -162,7 +172,7 @@ def p_var(p):
         if p[2] in procs[current_scope].keys():
             print("ERROR: variable con el mismo nombre declarada dos veces")
         else:
-            procs[current_scope][p[2]]=p[1]
+            procs[current_scope][p[2]]=memGlobales.generarEspacioMemoria(p[1])
 
     else:
         print procs
@@ -208,7 +218,8 @@ def p_cte_int(p):
     cte_int : CTE_INT
     '''
     if(p[1] not in constantes.keys()):
-        constantes[p[1]] = 'INT'
+        #constantes[p[1]] = 'INT'
+        constantes[p[1]] = memConstantes.generarEspacioMemoria('INT')
     pilaO.append(p[1])
     pTipos.append(constantes[p[1]])
 
@@ -217,7 +228,8 @@ def p_cte_float(p):
     cte_float : CTE_FLOAT
     '''
     if(p[1] not in constantes.keys()):
-        constantes[p[1]] = 'FLOAT'
+        #constantes[p[1]] = 'FLOAT'
+        constantes[p[1]] = memConstantes.generarEspacioMemoria('FLOAT')
     pilaO.append(p[1])
     pTipos.append(constantes[p[1]])
 
@@ -226,7 +238,9 @@ def p_cte_bool(p):
     cte_bool : CTE_BOOL
     '''
     if(p[1] not in constantes.keys()):
-        constantes[p[1]] = 'BOOL'
+        #constantes[p[1]] = 'BOOL'
+        constantes[p[1]] = memConstantes.generarEspacioMemoria('BOOL')
+
     pilaO.append(p[1])
     pTipos.append(constantes[p[1]])
 
@@ -235,7 +249,8 @@ def p_cte_char(p):
     cte_char : CTE_CHAR
     '''
     if(p[1] not in constantes.keys()):
-        constantes[p[1]] = 'CHAR'
+        #constantes[p[1]] = 'CHAR'
+        constantes[p[1]] = memConstantes.generarEspacioMemoria('CHAR')
     pilaO.append(p[1])
     pTipos.append(constantes[p[1]])
 
@@ -244,7 +259,8 @@ def p_cte_str(p):
     cte_str : CTE_STR
     '''
     if(p[1] not in constantes.keys()):
-        constantes[p[1]] = 'STRING'
+        #constantes[p[1]] = 'STRING'
+        constantes[p[1]] = memConstantes.generarEspacioMemoria('STRING')
     pilaO.append(p[1])
     pTipos.append(constantes[p[1]])
 
