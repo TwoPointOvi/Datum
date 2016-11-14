@@ -13,7 +13,7 @@ main() {
 	int a;
 	int b;
 	int c;
-    c = a + 10;
+    c = a + b+ c;
     if(b>a) {
         c = c - a;
     }
@@ -21,6 +21,7 @@ main() {
         c = c -b;
     }
 	print (c);
+	print (a + 10 + b);
     while(c>a) {
         a = a + b;
     }
