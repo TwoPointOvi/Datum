@@ -373,6 +373,11 @@ def p_asignacion(p):
     '''
     asignacion : ID asignacion2 '=' expresion ';'
     '''
+    resultado = pilaO.pop()
+    nuevoCuadruplo = [p[3], resultado, None, p[1]]
+    cuadruplos.append(nuevoCuadruplo)
+    global contCuadruplos
+    contCuadruplos += 1
 
 def p_asignacion2(p):
     '''
@@ -485,6 +490,11 @@ def p_escritura(p):
     '''
     escritura : PRINT '(' escritura1 ')' ';'
     '''
+    resultado = pilaO.pop()
+    nuevoCuadruplo = [p[1], resultado, None, None]
+    cuadruplos.append(nuevoCuadruplo)
+    global contCuadruplos
+    contCuadruplos += 1
 
 def p_escritura1(p):
     '''
