@@ -9,6 +9,10 @@ int ovi(int a, float b) {
     return a;
 }
 
+void hugo(float b) {
+    print(b);
+}
+
 main() {
 	int a;
 	float b;
@@ -25,5 +29,7 @@ main() {
     while(c>a) {
         a = a + b;
     }
+    a = ovi(ovi(a,b), b);
+    hugo(b);
 }
 }

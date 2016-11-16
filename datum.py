@@ -83,6 +83,7 @@ def t_ID(t):
 def t_error(t):
     print("Caracter ilegal '%s'" % t.value[0])
     t.lexer.skip(1)
+    sys.exit()
 
 #Build lexer
 lex.lex()
@@ -175,14 +176,16 @@ def p_var(p):
     global procs
     if current_scope == 'global':
         if p[2] in procs[current_scope].keys():
-            print("ERROR: variable con el mismo nombre declarada dos veces")
+            print("ERROR: variable con el mismo nombre declarada dos veces en linea %d." % lineNumber)
+            sys.exit()
         else:
             procs[current_scope][p[2]]=memGlobales.generarEspacioMemoria(p[1])
 
     else:
         print procs
         if p[2] in procs['global'].keys() or p[2] in procs[current_scope][2].keys():
-            print("ERROR: variable con el mismo nombre declarada dos veces")
+            print("ERROR: variable con el mismo nombre declarada dos veces en linea %d." % lineNumber)
+            sys.exit()
         else:
             global inParams
             if inParams:
@@ -288,6 +291,7 @@ def p_t_main(p):
     scope = p[1]
     if scope in procs:
         print('ERROR: Funcion repetida en linea %d.' % lineNumber)
+        sys.exit()
     global current_scope
     current_scope = scope
     global func_memLocal, func_memTemp
@@ -340,6 +344,7 @@ def p_t_new_func(p):
     scope = p[2]
     if scope in procs:
         print('ERROR: Funcion repetida en linea %d.' % lineNumber)
+        sys.exit()
     global current_scope
     current_scope = scope
     global func_memLocal, func_memTemp
@@ -349,7 +354,8 @@ def p_t_new_func(p):
     procs[current_scope] = [p[1], [], {}, contCuadruplos]
     #Crear una variable para el valor de retorno de la funcion
     if p[2] in procs['global'].keys():
-        print("ERROR: variable/funcion con el mismo nombre declarada dos veces")
+        print("ERROR: variable/funcion con el mismo nombre declarada dos veces en linea %d." % lineNumber)
+        sys.exit()
     else:
         if p[1] != 'VOID':
             procs['global'][p[2]] = memGlobales.generarEspacioMemoria(p[1])
@@ -439,6 +445,7 @@ def p_asignacion(p):
         contCuadruplos += 1
     else:
         print 'ERROR: Type mismatch in line %d.' % lineNumber
+        sys.exit()
 
 def p_asignacion_accion1(p):
     '''
@@ -481,6 +488,7 @@ def p_condicion_accion1(p):
     aux = pTipos.pop()
     if aux != 'BOOL':
         print('ERROR: Type mismatch in line %d.' % lineNumber)
+        sys.exit()
     else:
         resultado = pilaO.pop()
         #Generar el cuadruplo
@@ -538,6 +546,7 @@ def p_repeticion_accion2(p):
     aux = pTipos.pop()
     if aux != 'BOOL':
         print('ERROR: Type mismatch in %d.' % lineNumber)
+        sys.exit()
     else:
         print("saltos else")
         print(pSaltos)
@@ -685,6 +694,7 @@ def p_codigoExpAccion9(p):
 
             else:
                 print("ERROR: operacion " + operador + " con tipos incompatibles.")
+                sys.exit()
 
 def p_expresion1(p):
     '''
@@ -744,6 +754,7 @@ def p_codigoExpAccion4(p):
 
             else:
                 print("ERROR: operacion " + operador + " con tipos incompatibles.")
+                sys.exit()
 
 def p_exp1(p):
     '''
@@ -791,6 +802,7 @@ def p_codigoExpAccion5(p):
 
             else:
                 print("ERROR: operacion " + operador + " con tipos incompatibles.")
+                sys.exit()
 
 def p_termino1(p):
     '''
@@ -838,6 +850,7 @@ def p_codigoExpAccion5_5(p):
 
             else:
                 print("ERROR: operacion " + operador + " con tipos incompatibles.")
+                sys.exit()
 
 def p_exponente1(p):
     '''
@@ -895,6 +908,7 @@ def p_factor1(p):
 
         else:
             print("ERROR: variable no declarada")
+            sys.exit()
         print "TIPO BEF APPEND"
         print tipo
         pTipos.append(tipo)
@@ -930,6 +944,7 @@ def p_accion_llamadaProc3(p):
     tipoArg = pTipos.pop()
     if tipoArg != procs[scopeParametros[-1]][1][contParametros[-1]]:
         print 'ERROR: Type mismatch in line %d.' % lineNumber
+        sys.exit()
     else:
         nuevoCuadruplo = ['PARAM', argumento, None, contParametros[-1]]
         cuadruplos.append(nuevoCuadruplo)
@@ -956,6 +971,7 @@ def p_accion_llamadaProc5(p):
     parametros = contParametros.pop()
     if len(procs[scope][1]) != parametros+1:
         print 'ERROR: Incongruencia de numero de parametros de la funcion en linea %d.' % lineNumber
+        sys.exit()
     else:
         nuevoCuadruplo = ['GOSUB', scope, procs[scope][3]]
         cuadruplos.append(nuevoCuadruplo)
@@ -985,6 +1001,7 @@ def p_empty(p):
 def p_error(p):
     global lineNumber
     print('Syntax error at token "%s" in line #%d.' % (p.value, lineNumber))
+    sys.exit()
 
 parser = yacc.yacc()
 
