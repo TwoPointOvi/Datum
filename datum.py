@@ -135,6 +135,10 @@ inicioCTE = 160000
 memGlobales = mem.Memoria(inicioGlobales)
 memConstantes = mem.Memoria(inicioCTE)
 
+#Objetos memoria virtual para funciones
+func_memLocal = mem.Memoria(inicioLocal)
+func_memTemp = mem.Memoria(inicioTemp)
+
 #Gramatica
 def p_progam(p):
     '''
@@ -183,7 +187,7 @@ def p_var(p):
             global inParams
             if inParams:
                 procs[current_scope][1].append(p[1])
-            procs[current_scope][2][p[2]] = p[1]
+            procs[current_scope][2][p[2]] = func_memLocal.generarEspacioMemoria(p[1])
 
 def p_initialize_var(p):
     '''
@@ -221,8 +225,8 @@ def p_cte_int(p):
     if(p[1] not in constantes.keys()):
         #constantes[p[1]] = 'INT'
         constantes[p[1]] = memConstantes.generarEspacioMemoria('INT')
-    pilaO.append(p[1])
-    pTipos.append(constantes[p[1]])
+    pilaO.append(constantes[p[1]])
+    pTipos.append('INT')
 
 def p_cte_float(p):
     '''
@@ -231,8 +235,8 @@ def p_cte_float(p):
     if(p[1] not in constantes.keys()):
         #constantes[p[1]] = 'FLOAT'
         constantes[p[1]] = memConstantes.generarEspacioMemoria('FLOAT')
-    pilaO.append(p[1])
-    pTipos.append(constantes[p[1]])
+    pilaO.append(constantes[p[1]])
+    pTipos.append('FLOAT')
 
 def p_cte_bool(p):
     '''
@@ -241,9 +245,8 @@ def p_cte_bool(p):
     if(p[1] not in constantes.keys()):
         #constantes[p[1]] = 'BOOL'
         constantes[p[1]] = memConstantes.generarEspacioMemoria('BOOL')
-
-    pilaO.append(p[1])
-    pTipos.append(constantes[p[1]])
+    pilaO.append(constantes[p[1]])
+    pTipos.append('BOOL')
 
 def p_cte_char(p):
     '''
@@ -252,8 +255,8 @@ def p_cte_char(p):
     if(p[1] not in constantes.keys()):
         #constantes[p[1]] = 'CHAR'
         constantes[p[1]] = memConstantes.generarEspacioMemoria('CHAR')
-    pilaO.append(p[1])
-    pTipos.append(constantes[p[1]])
+    pilaO.append(constantes[p[1]])
+    pTipos.append('CHAR')
 
 def p_cte_str(p):
     '''
@@ -262,8 +265,8 @@ def p_cte_str(p):
     if(p[1] not in constantes.keys()):
         #constantes[p[1]] = 'STRING'
         constantes[p[1]] = memConstantes.generarEspacioMemoria('STRING')
-    pilaO.append(p[1])
-    pTipos.append(constantes[p[1]])
+    pilaO.append(constantes[p[1]])
+    pTipos.append('STRING')
 
 def p_prog_body(p):
     '''
@@ -287,6 +290,9 @@ def p_t_main(p):
         print('ERROR: Funcion repetida en linea %d.' % lineNumber)
     global current_scope
     current_scope = scope
+    global func_memLocal, func_memTemp
+    func_memLocal = mem.Memoria(inicioLocal)
+    func_memTemp = mem.Memoria(inicioTemp)
     global procs
     procs[current_scope] = [p[1], [], {}, contCuadruplos]
 
@@ -336,6 +342,9 @@ def p_t_new_func(p):
         print('ERROR: Funcion repetida en linea %d.' % lineNumber)
     global current_scope
     current_scope = scope
+    global func_memLocal, func_memTemp
+    func_memLocal = mem.Memoria(inicioLocal)
+    func_memTemp = mem.Memoria(inicioTemp)
     global procs
     procs[current_scope] = [p[1], [], {}, contCuadruplos]
     #Crear una variable para el valor de retorno de la funcion
@@ -652,13 +661,13 @@ def p_codigoExpAccion9(p):
             print tipoOp1
             print tipoOp2
             print operador
-            if scube.semantic_cube[tipoOp1][tipoOp2][operador] > 0:
+            tipoSCube = scube.semantic_cube[tipoOp1][tipoOp2][operador]
+            if tipoSCube > 0:
                 print "adios 2"
                 operando2 = pilaO.pop()
                 operando1 = pilaO.pop()
                 global contTemp
-                resultado = contTemp
-                contTemp += 1
+                resultado = func_memTemp.generarEspacioMemoria(numToTipo[tipoSCube])
                 nuevoCuad = [operador, operando1, operando2, resultado]
                 global contCuadruplos
                 contCuadruplos += 1
@@ -711,12 +720,13 @@ def p_codigoExpAccion4(p):
             operador = pOper.pop()
             tipoOp2 = pTipos.pop()
             tipoOp1 = pTipos.pop()
-            if scube.semantic_cube[tipoOp1][tipoOp2][operador] > 0:
+            print tipoOp1, tipoOp2
+            tipoSCube = scube.semantic_cube[tipoOp1][tipoOp2][operador]
+            if tipoSCube > 0:
                 operando2 = pilaO.pop()
                 operando1 = pilaO.pop()
                 global contTemp
-                resultado = contTemp
-                contTemp += 1
+                resultado = func_memTemp.generarEspacioMemoria(numToTipo[tipoSCube])
                 nuevoCuad = [operador, operando1, operando2, resultado]
                 global contCuadruplos
                 contCuadruplos += 1
@@ -758,12 +768,12 @@ def p_codigoExpAccion5(p):
             operador = pOper.pop()
             tipoOp2 = pTipos.pop()
             tipoOp1 = pTipos.pop()
-            if scube.semantic_cube[tipoOp1][tipoOp2][operador] > 0:
+            tipoSCube = scube.semantic_cube[tipoOp1][tipoOp2][operador]
+            if tipoSCube > 0:
                 operando2 = pilaO.pop()
                 operando1 = pilaO.pop()
                 global contTemp
-                resultado = contTemp
-                contTemp += 1
+                resultado = func_memTemp.generarEspacioMemoria(numToTipo[tipoSCube])
                 nuevoCuad = [operador, operando1, operando2, resultado]
                 global contCuadruplos
                 contCuadruplos += 1
@@ -805,12 +815,12 @@ def p_codigoExpAccion5_5(p):
             operador = pOper.pop()
             tipoOp2 = pTipos.pop()
             tipoOp1 = pTipos.pop()
-            if scube.semantic_cube[tipoOp1][tipoOp2][operador] > 0:
+            tipoSCube = scube.semantic_cube[tipoOp1][tipoOp2][operador]
+            if tipoSCube > 0:
                 operando2 = pilaO.pop()
                 operando1 = pilaO.pop()
                 global contTemp
-                resultado = contTemp
-                contTemp += 1
+                resultado = func_memTemp.generarEspacioMemoria(numToTipo[tipoSCube])
                 nuevoCuad = [operador, operando1, operando2, resultado]
                 global contCuadruplos
                 contCuadruplos += 1
@@ -864,14 +874,23 @@ def p_factor1(p):
             | ID
     '''
     if(len(p)<3):
-        pilaO.append(p[1])
         tipo = ""
         if p[1] in procs[current_scope][2].keys():
             tipo = procs[current_scope][2][p[1]]
+            tipo = tipo/10000
+            tipo = tipo % 5
+            tipo = numToTipo[tipo]
+            pilaO.append(procs[current_scope][2][p[1]])
         elif p[1] in procs['global'].keys():
             tipo = procs['global'][p[1]]
+            tipo = tipo/10000
+            tipo = numToTipo[tipo]
+            pilaO.append(procs[current_scope][2][p[1]])
+
         else:
             print("ERROR: variable no declarada")
+        print "TIPO BEF APPEND"
+        print tipo
         pTipos.append(tipo)
 
 def p_accion_llamadaProc1(p):
