@@ -444,11 +444,17 @@ def p_asignacion_accion1(p):
     '''
     asignacion_accion1 : ID
     '''
-    pilaO.append(p[1])
     if p[1] in procs[current_scope][2].keys():
         tipo = procs[current_scope][2][p[1]]
+        tipo = tipo/10000
+        tipo = tipo % 5
+        tipo = numToTipo[tipo]
+        pilaO.append(procs[current_scope][2][p[1]])
     elif p[1] in procs['global'].keys():
         tipo = procs['global'][p[1]]
+        tipo = tipo/10000
+        tipo = numToTipo[tipo]
+        pilaO.append(procs[current_scope][p[1]])
     pTipos.append(tipo)
 
 def p_asignacion_accion2(p):
