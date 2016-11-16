@@ -1,3 +1,4 @@
+import sys
 import ply.lex as lex
 import ply.yacc as yacc
 import semantic_cube as scube
@@ -119,6 +120,10 @@ pTipos = []
 
 #Contadores dir mem
 contTemp=0
+
+#Contador de parametros
+contParametros = []
+scopeParametros = []
 
 #Inicios memoria
 inicioGlobales = 0
@@ -333,6 +338,12 @@ def p_t_new_func(p):
     current_scope = scope
     global procs
     procs[current_scope] = [p[1], [], {}, contCuadruplos]
+    #Crear una variable para el valor de retorno de la funcion
+    if p[2] in procs['global'].keys():
+        print("ERROR: variable/funcion con el mismo nombre declarada dos veces")
+    else:
+        if p[1] != 'VOID':
+            procs['global'][p[2]] = memGlobales.generarEspacioMemoria(p[1])
 
 def p_func_tipo(p):
     '''
@@ -355,9 +366,26 @@ def p_params1(p):
 
 def p_return_body(p):
     '''
-    return_body : RETURN expresion ';'
+    return_body : RETURN expresion return_accion1 ';'
                 | empty
     '''
+
+def p_return_accion1(p):
+    '''
+    return_accion1 :
+    '''
+    valorRetorno = pilaO.pop()
+    tipoRetorno = pTipos.pop()
+    tipoFunc = procs[current_scope][0]
+    if scube.semantic_cube[tipoFunc][tipoRetorno]['=']:
+        nuevoCuadruplo = ['=', valorRetorno, None, current_scope]
+        cuadruplos.append(nuevoCuadruplo)
+        global contCuadruplos
+        contCuadruplos += 1
+
+        nuevoCuadruplo = ['RETURN', valorRetorno, None, current_scope]
+        cuadruplos.append(nuevoCuadruplo)
+        contCuadruplos += 1
 
 def p_bloque(p):
     '''
@@ -388,13 +416,37 @@ def p_estatuto2(p):
 
 def p_asignacion(p):
     '''
-    asignacion : ID asignacion2 '=' expresion ';'
+    asignacion : asignacion_accion1 asignacion2 asignacion_accion2 expresion ';'
     '''
     resultado = pilaO.pop()
-    nuevoCuadruplo = [p[3], resultado, None, p[1]]
-    cuadruplos.append(nuevoCuadruplo)
-    global contCuadruplos
-    contCuadruplos += 1
+    tipoResultado = pTipos.pop()
+    asignado = pilaO.pop()
+    tipoAsignado = pTipos.pop()
+    oper = pOper.pop()
+    if scube.semantic_cube[tipoAsignado][tipoResultado][oper] > 0:
+        nuevoCuadruplo = [oper, resultado, None, asignado]
+        cuadruplos.append(nuevoCuadruplo)
+        global contCuadruplos
+        contCuadruplos += 1
+    else:
+        print 'ERROR: Type mismatch in line %d.' % lineNumber
+
+def p_asignacion_accion1(p):
+    '''
+    asignacion_accion1 : ID
+    '''
+    pilaO.append(p[1])
+    if p[1] in procs[current_scope][2].keys():
+        tipo = procs[current_scope][2][p[1]]
+    elif p[1] in procs['global'].keys():
+        tipo = procs['global'][p[1]]
+    pTipos.append(tipo)
+
+def p_asignacion_accion2(p):
+    '''
+    asignacion_accion2 : '='
+    '''
+    pOper.append(p[1])
 
 def p_asignacion2(p):
     '''
@@ -808,7 +860,7 @@ def p_fin_parentesis(p):
 def p_factor1(p):
     '''
     factor1 : ID '[' exp ']'
-            | ID '(' factor2 ')'
+            | accion_llamadaProc1 factor2 ')' accion_llamadaProc5
             | ID
     '''
     if(len(p)<3):
@@ -822,23 +874,83 @@ def p_factor1(p):
             print("ERROR: variable no declarada")
         pTipos.append(tipo)
 
+def p_accion_llamadaProc1(p):
+    '''
+    accion_llamadaProc1 : ID '('
+    '''
+    if p[1] not in procs:
+        print 'ERROR: Llamada a una funcion inexistente en linea %d.' % lineNumber
+        sys.exit()
+    else:
+        nuevoCuadruplo = ['ERA', p[1], None, None]
+        cuadruplos.append(nuevoCuadruplo)
+        global contCuadruplos
+        contCuadruplos += 1
+
+        global contParametros
+        contParametros.append(0)
+        scopeParametros.append(p[1])
+
 def p_factor2(p):
     '''
-    factor2 : exp factor3
+    factor2 : exp accion_llamadaProc3 factor3
             | empty
     '''
 
+def p_accion_llamadaProc3(p):
+    '''
+    accion_llamadaProc3 :
+    '''
+    argumento = pilaO.pop()
+    tipoArg = pTipos.pop()
+    if tipoArg != procs[scopeParametros[-1]][1][contParametros[-1]]:
+        print 'ERROR: Type mismatch in line %d.' % lineNumber
+    else:
+        nuevoCuadruplo = ['PARAM', argumento, None, contParametros[-1]]
+        cuadruplos.append(nuevoCuadruplo)
+        global contCuadruplos
+        contCuadruplos += 1
+
 def p_factor3(p):
     '''
-    factor3 : ',' exp factor3
+    factor3 : ',' accion_llamadaProc4 exp accion_llamadaProc3 factor3
             | empty
     '''
+
+def p_accion_llamadaProc4(p):
+    '''
+    accion_llamadaProc4 :
+    '''
+    contParametros[-1] += 1
+
+def p_accion_llamadaProc5(p):
+    '''
+    accion_llamadaProc5 :
+    '''
+    scope = scopeParametros.pop()
+    parametros = contParametros.pop()
+    if len(procs[scope][1]) != parametros+1:
+        print 'ERROR: Incongruencia de numero de parametros de la funcion en linea %d.' % lineNumber
+    else:
+        nuevoCuadruplo = ['GOSUB', scope, procs[scope][3]]
+        cuadruplos.append(nuevoCuadruplo)
+        global contCuadruplos
+        contCuadruplos += 1
+
+        #Parche guadalupano
+        if scope in procs['global']:
+            global contTemp
+            nuevoCuadruplo2 = ['=', scope, None, contTemp]
+            contTemp += 1
+            cuadruplos.append(nuevoCuadruplo2)
+            contCuadruplos += 1
+            pilaO.append(contTemp - 1)
+            pTipos.append(numToTipo[procs['global'][scope]/10000])
 
 def p_codigoExpAccion1(p):
     '''
     codigoExpAccion1 : factor1
     '''
-
 
 def p_empty(p):
     '''
@@ -852,7 +964,6 @@ def p_error(p):
 
 parser = yacc.yacc()
 
-import sys
 if len(sys.argv) < 2:
     fileName = raw_input('Archivo de entrada: ')
 else:
