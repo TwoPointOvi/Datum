@@ -964,12 +964,11 @@ def p_accion_llamadaProc5(p):
 
         #Parche guadalupano
         if scope in procs['global']:
-            global contTemp
-            nuevoCuadruplo2 = ['=', scope, None, contTemp]
-            contTemp += 1
+            temp = func_memTemp.generarEspacioMemoria(procs[scope][0])
+            nuevoCuadruplo2 = ['=', scope, None, temp]
             cuadruplos.append(nuevoCuadruplo2)
             contCuadruplos += 1
-            pilaO.append(contTemp - 1)
+            pilaO.append(temp)
             pTipos.append(numToTipo[procs['global'][scope]/10000])
 
 def p_codigoExpAccion1(p):
