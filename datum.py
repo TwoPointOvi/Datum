@@ -837,11 +837,10 @@ def p_factor1(p):
             tipo = numToTipo[tipo]
             pilaO.append(procs[current_scope][2][p[1]])
         elif p[1] in procs['global'].keys():
-            pilaO.append(p[1])
             tipo = procs['global'][p[1]]
             tipo = tipo/10000
             tipo = numToTipo[tipo]
-            pilaO.append(procs[current_scope][2][p[1]])
+            pilaO.append(procs[current_scope][p[1]])
 
         else:
             print("ERROR: variable no declarada")
