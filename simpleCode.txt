@@ -5,7 +5,7 @@ bool tres;
 {
 
 int ovi(int a, float b) {
-    a = b;
+    a = a + 5;
     return a;
 }
 
@@ -16,20 +16,28 @@ void hugo(float b) {
 main() {
 	int a;
 	float b;
-	int c=0;
-    c = a + b+ c;
+	int c;
+	bool x;
+	bool y;
+	Vec int gato <13>;
+    c = a + c;
     if(b>a) {
         c = c - a;
     }
     if(a<c) {
-        c = c -b;
+        c = c - a;
     }
 	print (c);
 	print (a + 10 + b);
     while(c>a) {
-        a = a + b;
+        a = a + c;
     }
     a = ovi(ovi(a,b), b);
     hugo(b);
+
+    if (x and y) {
+        print(x);
+    }
+
 }
 }

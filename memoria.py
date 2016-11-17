@@ -24,22 +24,27 @@ class Memoria:
         if tipo == 'STRING':
             return self.generarMemoriaString()
 
-    def generarMemoriaInt(self):
-        self.intCount += 1
-        return self.intCount + self.INT_MEMORIA
+    def generarMemoriaInt(self, size=1):
+        mem = self.intCount + 1
+        self.intCount += size
+        return mem + self.INT_MEMORIA
 
-    def generarMemoriaFloat(self):
-        self.floatCount += 1
-        return self.floatCount + self.FLOAT_MEMORIA
+    def generarMemoriaFloat(self, size=1):
+        mem = self.floatCount + 1
+        self.floatCount +=  size
+        return mem + self.FLOAT_MEMORIA
 
-    def generarMemoriaBool(self):
-        self.boolCount += 1
-        return self.boolCount + self.BOOL_MEMORIA
+    def generarMemoriaBool(self, size=1):
+        mem = self.boolCount + 1
+        self.boolCount += size
+        return mem + self.BOOL_MEMORIA
 
-    def generarMemoriaChar(self):
-        self.charCount += 1
-        return self.charCount + self.CHAR_MEMORIA
+    def generarMemoriaChar(self, size=1):
+        mem = self.charCount + 1
+        self.charCount += size
+        return mem + self.CHAR_MEMORIA
 
-    def generarMemoriaString(self):
-        self.stringCount += 1
-        return self.stringCount + self.STRING_MEMORIA
+    def generarMemoriaString(self, size=1):
+        mem = self.stringCount + 1
+        self.stringCount += size
+        return mem + self.STRING_MEMORIA

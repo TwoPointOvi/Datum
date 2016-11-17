@@ -24,16 +24,11 @@ reserved = {
     'scatterchart' : 'SCATTERCHART',
     'linechart' : 'LINECHART',
     'piechart' : 'PIECHART',
-    'add' : 'ADD',
-    'get' : 'GET',
-    'remove' : 'REMOVE',
-    'modify' : 'MODIFY',
-    'load' : 'LOAD',
-    'size' : 'SIZE',
     'main' : 'MAIN',
-    'AND' : 'AND',
-    'OR' : 'OR',
-    'return' : 'RETURN'
+    'and' : 'AND',
+    'or' : 'OR',
+    'return' : 'RETURN',
+    'read' : 'READ'
 }
 
 #Tokens
@@ -146,9 +141,13 @@ def p_progam(p):
     program : t_prog ID ';' declare_vars prog_body
     '''
     global procs
+    print 'Tabla de Procedimientos:'
     print(procs)
+    print ''
     global constantes
+    print 'Tabla de constantes:'
     print constantes
+    print ''
 
 def p_t_prog(p):
     '''
@@ -172,17 +171,15 @@ def p_var(p):
     '''
     var : tipo ID
     '''
-    print(p[1])
     global procs
     if current_scope == 'global':
         if p[2] in procs[current_scope].keys():
             print("ERROR: variable con el mismo nombre declarada dos veces en linea %d." % lineNumber)
             sys.exit()
         else:
-            procs[current_scope][p[2]]=memGlobales.generarEspacioMemoria(p[1])
+            procs[current_scope][p[2]]=[memGlobales.generarEspacioMemoria(p[1]), None]
 
     else:
-        print procs
         if p[2] in procs['global'].keys() or p[2] in procs[current_scope][2].keys():
             print("ERROR: variable con el mismo nombre declarada dos veces en linea %d." % lineNumber)
             sys.exit()
@@ -190,7 +187,7 @@ def p_var(p):
             global inParams
             if inParams:
                 procs[current_scope][1].append(p[1])
-            procs[current_scope][2][p[2]] = func_memLocal.generarEspacioMemoria(p[1])
+            procs[current_scope][2][p[2]] = [func_memLocal.generarEspacioMemoria(p[1]), None]
 
 def p_initialize_var(p):
     '''
@@ -200,7 +197,7 @@ def p_initialize_var(p):
 
 def p_vector(p):
     '''
-    vector : VEC tipo ID
+    vector : VEC tipo ID '<' cte_int '>' ';'
     '''
 
 def p_tipo(p):
@@ -303,6 +300,7 @@ def p_t_main(p):
 def p_funciones(p):
     '''
     funciones : t_new_func '(' t_inParams params t_outParams ')' '{' declare_vars inicio_cuadruplo estatuto return_body '}' end_func funciones
+                | t_new_voidFunc '(' t_inParams params t_outParams ')' '{' declare_vars inicio_cuadruplo estatuto '}' end_func funciones
                 | empty
     '''
     global current_scope
@@ -337,13 +335,9 @@ def p_t_outParams(p):
     global inParams
     inParams = False
 
-def p_t_new_func(p):
-    '''
-    t_new_func : func_tipo ID
-    '''
-    scope = p[2]
-    if scope in procs:
-        print('ERROR: Funcion repetida en linea %d.' % lineNumber)
+def declaracionMetodo(tipo, scope):
+    if scope in procs or scope in procs['global']:
+        print('ERROR: Nombre de variable repetida en linea %d.' % lineNumber)
         sys.exit()
     global current_scope
     current_scope = scope
@@ -351,19 +345,30 @@ def p_t_new_func(p):
     func_memLocal = mem.Memoria(inicioLocal)
     func_memTemp = mem.Memoria(inicioTemp)
     global procs
-    procs[current_scope] = [p[1], [], {}, contCuadruplos]
+    procs[current_scope] = [tipo, [], {}, contCuadruplos]
+
+def p_t_new_func(p):
+    '''
+    t_new_func : func_tipo ID
+    '''
+    scope = p[2]
+    declaracionMetodo(p[1], scope)
     #Crear una variable para el valor de retorno de la funcion
     if p[2] in procs['global'].keys():
         print("ERROR: variable/funcion con el mismo nombre declarada dos veces en linea %d." % lineNumber)
         sys.exit()
     else:
-        if p[1] != 'VOID':
-            procs['global'][p[2]] = memGlobales.generarEspacioMemoria(p[1])
+        procs['global'][p[2]] = memGlobales.generarEspacioMemoria(p[1])
+
+def p_t_new_voidFunc(p):
+    '''
+    t_new_voidFunc : VOID ID
+    '''
+    declaracionMetodo(p[1], p[2])
 
 def p_func_tipo(p):
     '''
     func_tipo : tipo
-                | VOID
     '''
     p[0] = p[1].upper()
 
@@ -382,7 +387,6 @@ def p_params1(p):
 def p_return_body(p):
     '''
     return_body : RETURN expresion return_accion1 ';'
-                | empty
     '''
 
 def p_return_accion1(p):
@@ -392,7 +396,7 @@ def p_return_accion1(p):
     valorRetorno = pilaO.pop()
     tipoRetorno = pTipos.pop()
     tipoFunc = procs[current_scope][0]
-    if scube.semantic_cube[tipoFunc][tipoRetorno]['=']:
+    if scube.semantic_cube[tipoFunc][tipoRetorno]['='] > 0:
         nuevoCuadruplo = ['=', valorRetorno, None, current_scope]
         cuadruplos.append(nuevoCuadruplo)
         global contCuadruplos
@@ -401,6 +405,9 @@ def p_return_accion1(p):
         nuevoCuadruplo = ['RETURN', valorRetorno, None, current_scope]
         cuadruplos.append(nuevoCuadruplo)
         contCuadruplos += 1
+    else:
+        print 'ERROR: Type mismatch in line %d.' % lineNumber
+        sys.exit()
 
 def p_bloque(p):
     '''
@@ -418,8 +425,8 @@ def p_estatuto1(p):
                 | condicion
                 | repeticion
                 | escritura
+                | lectura
                 | graficar
-                | op_vector
                 | expresion ';'
     '''
 
@@ -452,16 +459,18 @@ def p_asignacion_accion1(p):
     asignacion_accion1 : ID
     '''
     if p[1] in procs[current_scope][2].keys():
-        tipo = procs[current_scope][2][p[1]]
+        variable = procs[current_scope][2][p[1]][0]
+        tipo = variable
         tipo = tipo/10000
         tipo = tipo % 5
         tipo = numToTipo[tipo]
-        pilaO.append(procs[current_scope][2][p[1]])
+        pilaO.append(variable)
     elif p[1] in procs['global'].keys():
-        tipo = procs['global'][p[1]]
+        variable = procs['global'][p[1]][0]
+        tipo = variable
         tipo = tipo/10000
         tipo = numToTipo[tipo]
-        pilaO.append(procs[current_scope][p[1]])
+        pilaO.append(variable)
     pTipos.append(tipo)
 
 def p_asignacion_accion2(p):
@@ -538,39 +547,24 @@ def p_repeticion_accion2(p):
     '''
     repeticion_accion2 :
     '''
-    print("saltos before if aux rep accion 2")
-    print(pSaltos)
-    print pTipos
-    print pOper
-    print pilaO
     aux = pTipos.pop()
     if aux != 'BOOL':
         print('ERROR: Type mismatch in %d.' % lineNumber)
         sys.exit()
     else:
-        print("saltos else")
-        print(pSaltos)
         resultado = pilaO.pop()
         #Generar cuadruplo
         cuadruplos.append(['GOTOF', resultado, None, None])
         global contCuadruplos
         contCuadruplos += 1
 
-        print("saltos before")
-        print(pSaltos)
         pSaltos.append(contCuadruplos - 1)
-        print("saltos after")
-        print(pSaltos)
 
 def p_repeticion_accion3(p):
     '''
     repeticion_accion3 :
     '''
-    print("saltos ")
-    print(pSaltos)
     falso = pSaltos.pop()
-    print("saltos ")
-    print(pSaltos)
     retorno = pSaltos.pop()
 
     cuadruplos.append(['GOTO', None, None, retorno])
@@ -581,18 +575,26 @@ def p_repeticion_accion3(p):
 
 def p_escritura(p):
     '''
-    escritura : PRINT '(' escritura1 ')' ';'
+    escritura : PRINT '(' expresion ')' ';'
     '''
     resultado = pilaO.pop()
+    pTipos.pop()
     nuevoCuadruplo = [p[1], resultado, None, None]
     cuadruplos.append(nuevoCuadruplo)
     global contCuadruplos
     contCuadruplos += 1
 
-def p_escritura1(p):
+def p_lectura(p):
     '''
-    escritura1 : expresion
+    lectura : READ '(' ID ')' ';'
     '''
+    if p[3] in procs[current_scope][2].keys() or p[3] in procs['global'].keys():
+        nuevoCuadruplo = ['READ', p[3], None, None]
+        global contCuadruplos
+        cuadruplos.append(nuevoCuadruplo)
+        contCuadruplos += 1
+    else:
+        print 'ERROR: Variable no declarada en linea %d.' % lineNumber
 
 def p_graficar(p):
     '''
@@ -623,31 +625,6 @@ def p_title(p):
             | CTE_STR
     '''
 
-def p_op_vector(p):
-    '''
-    op_vector : ID '.' op_vector1 ')'
-    '''
-
-def p_op_vector1(p):
-    '''
-    op_vector1 : op_vector2 exp
-                | LOAD '(' CTE_STR
-                | SIZE '('
-    '''
-
-def p_op_vector2(p):
-    '''
-    op_vector2 : op_vector3
-                | MODIFY '(' exp ','
-    '''
-
-def p_op_vector3(p):
-    '''
-    op_vector3 : ADD '('
-                | GET '('
-                | REMOVE '('
-    '''
-
 def p_expresion(p):
     '''
     expresion : exp codigoExpAccion9 expresion1
@@ -657,28 +634,15 @@ def p_codigoExpAccion9(p):
     '''
     codigoExpAccion9 :
     '''
-    print "codgo accion 9"
-    print(len(pOper))
-    print pilaO
-    print pOper
     if len(pOper) > 0:
-        print "inside first if cea9"
-        print pOper
-        print pilaO
-        print pOper[len(pOper)-1]
         if (pOper[len(pOper)-1] == '>' or pOper[len(pOper)-1] == '<' or
             pOper[len(pOper)-1] == '>=' or pOper[len(pOper)-1] == '=>' or
             pOper[len(pOper)-1] == '==' or pOper[len(pOper)-1] == '<>'):
             operador = pOper.pop()
             tipoOp2 = pTipos.pop()
             tipoOp1 = pTipos.pop()
-            print "adios 1"
-            print tipoOp1
-            print tipoOp2
-            print operador
             tipoSCube = scube.semantic_cube[tipoOp1][tipoOp2][operador]
             if tipoSCube > 0:
-                print "adios 2"
                 operando2 = pilaO.pop()
                 operando1 = pilaO.pop()
                 global contTemp
@@ -716,11 +680,7 @@ def p_op_relacional(p):
     '''
     #codigoExpAccion8
     if p[1] != None:
-        print "poper before append op rel"
-        print pOper
         pOper.append(p[1])
-        print "pOper after append op rel"
-        print pOper
 
 def p_exp(p):
     '''
@@ -732,11 +692,10 @@ def p_codigoExpAccion4(p):
     codigoExpAccion4 :
     '''
     if len(pOper) > 0:
-        if pOper[len(pOper)-1] == '+' or pOper[len(pOper)-1] == '-':
+        if pOper[len(pOper)-1] == '+' or pOper[len(pOper)-1] == '-' or pOper[len(pOper)-1] == 'or':
             operador = pOper.pop()
             tipoOp2 = pTipos.pop()
             tipoOp1 = pTipos.pop()
-            print tipoOp1, tipoOp2
             tipoSCube = scube.semantic_cube[tipoOp1][tipoOp2][operador]
             if tipoSCube > 0:
                 operando2 = pilaO.pop()
@@ -766,6 +725,7 @@ def p_op_sum_res(p):
     '''
     op_sum_res : '+'
                 | '-'
+                | OR
     '''
     #codigoExpAccion2
     if p[1] != None:
@@ -781,7 +741,7 @@ def p_codigoExpAccion5(p):
     codigoExpAccion5 :
     '''
     if len(pOper) > 0:
-        if pOper[len(pOper)-1] == '*' or pOper[len(pOper)-1] == '/':
+        if pOper[len(pOper)-1] == '*' or pOper[len(pOper)-1] == '/' or pOper[len(pOper)-1] == 'and':
             operador = pOper.pop()
             tipoOp2 = pTipos.pop()
             tipoOp1 = pTipos.pop()
@@ -814,6 +774,7 @@ def p_op_mult_div(p):
     '''
     op_mult_div : '*'
                 | '/'
+                | AND
     '''
     #codigoExpAccion3
     if p[1] != None:
@@ -893,24 +854,22 @@ def p_factor1(p):
             | ID
     '''
     if(len(p)<3):
-        tipo = ""
         if p[1] in procs[current_scope][2].keys():
-            tipo = procs[current_scope][2][p[1]]
+            variable = procs[current_scope][2][p[1]][0]
+            tipo = variable
             tipo = tipo/10000
             tipo = tipo % 5
             tipo = numToTipo[tipo]
-            pilaO.append(procs[current_scope][2][p[1]])
+            pilaO.append(variable)
         elif p[1] in procs['global'].keys():
-            tipo = procs['global'][p[1]]
+            variable = procs['global'][p[1]][0]
+            tipo = variable
             tipo = tipo/10000
             tipo = numToTipo[tipo]
-            pilaO.append(procs[current_scope][p[1]])
-
+            pilaO.append(variable)
         else:
             print("ERROR: variable no declarada")
             sys.exit()
-        print "TIPO BEF APPEND"
-        print tipo
         pTipos.append(tipo)
 
 def p_accion_llamadaProc1(p):
@@ -1015,3 +974,5 @@ with open(fileName) as codeFile:
 
 for cuadruplo in cuadruplos:
     print(cuadruplo)
+print pilaO
+print pTipos
