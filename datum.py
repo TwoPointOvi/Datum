@@ -278,6 +278,19 @@ def p_main_body(p):
     main_body : t_main '(' ')' '{' declare_vars estatuto '}'
     '''
     global current_scope
+    global procs
+    procs[current_scope][4].append(func_memLocal.intCount+1)
+    procs[current_scope][4].append(func_memLocal.floatCount+1)
+    procs[current_scope][4].append(func_memLocal.boolCount+1)
+    procs[current_scope][4].append(func_memLocal.charCount+1)
+    procs[current_scope][4].append(func_memLocal.stringCount+1)
+
+    procs[current_scope][4].append(func_memTemp.intCount + 1)
+    procs[current_scope][4].append(func_memTemp.floatCount + 1)
+    procs[current_scope][4].append(func_memTemp.boolCount + 1)
+    procs[current_scope][4].append(func_memTemp.charCount + 1)
+    procs[current_scope][4].append(func_memTemp.stringCount + 1)
+
     current_scope = 'global'
     #creo que hay que marcar end aqui
 
@@ -285,6 +298,7 @@ def p_t_main(p):
     '''
     t_main : MAIN
     '''
+    global procs
     scope = p[1]
     if scope in procs:
         print('ERROR: Funcion repetida en linea %d.' % lineNumber)
@@ -294,8 +308,7 @@ def p_t_main(p):
     global func_memLocal, func_memTemp
     func_memLocal = mem.Memoria(inicioLocal)
     func_memTemp = mem.Memoria(inicioTemp)
-    global procs
-    procs[current_scope] = [p[1], [], {}, contCuadruplos]
+    procs[current_scope] = [p[1], [], {}, contCuadruplos, []]
 
 def p_funciones(p):
     '''
@@ -317,6 +330,20 @@ def p_end_func(p):
     end_func :
     '''
     #Liberar tabla de variables del procedimiento
+    global procs
+    if current_scope != 'global':
+        global procs
+        procs[current_scope][4].append(func_memLocal.intCount+1)
+        procs[current_scope][4].append(func_memLocal.floatCount+1)
+        procs[current_scope][4].append(func_memLocal.boolCount+1)
+        procs[current_scope][4].append(func_memLocal.charCount+1)
+        procs[current_scope][4].append(func_memLocal.stringCount+1)
+
+        procs[current_scope][4].append(func_memTemp.intCount + 1)
+        procs[current_scope][4].append(func_memTemp.floatCount + 1)
+        procs[current_scope][4].append(func_memTemp.boolCount + 1)
+        procs[current_scope][4].append(func_memTemp.charCount + 1)
+        procs[current_scope][4].append(func_memTemp.stringCount + 1)
     cuadruplos.append(['RETORNO', None, None, None])
     global contCuadruplos
     contCuadruplos += 1
@@ -336,16 +363,16 @@ def p_t_outParams(p):
     inParams = False
 
 def declaracionMetodo(tipo, scope):
+    global current_scope
+    global procs
+    global func_memLocal, func_memTemp
     if scope in procs or scope in procs['global']:
         print('ERROR: Nombre de variable repetida en linea %d.' % lineNumber)
         sys.exit()
-    global current_scope
     current_scope = scope
-    global func_memLocal, func_memTemp
     func_memLocal = mem.Memoria(inicioLocal)
     func_memTemp = mem.Memoria(inicioTemp)
-    global procs
-    procs[current_scope] = [tipo, [], {}, contCuadruplos]
+    procs[current_scope] = [tipo, [], {}, contCuadruplos, []]
 
 def p_t_new_func(p):
     '''
