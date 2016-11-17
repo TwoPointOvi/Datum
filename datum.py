@@ -114,6 +114,11 @@ pOper = []
 pSaltos = []
 pTipos = []
 
+#Pila de variables dimensionadas
+pDim = []
+varDim = []
+varMemDim = []
+
 #Contadores dir mem
 contTemp=0
 
@@ -199,6 +204,32 @@ def p_vector(p):
     '''
     vector : VEC tipo ID '<' cte_int '>' ';'
     '''
+    pilaO.pop()
+    tipo = pTipos.pop()
+    tamVec = int(p[5])
+    limiteSuperior = tamVec - 1
+    if current_scope == 'global':
+        if p[3] in procs[current_scope].keys():
+            print("ERROR: variable con el mismo nombre declarada dos veces en linea %d." % lineNumber)
+            sys.exit()
+        else:
+            memVar = memGlobales.generarEspacioMemoria(tipo, tamVec)
+            varDim.append(p[3])
+            varMemDim.append(memVar)
+            procs[current_scope][p[3]]=[memVar, limiteSuperior]
+
+    else:
+        if p[3] in procs['global'].keys() or p[3] in procs[current_scope][2].keys():
+            print("ERROR: variable con el mismo nombre declarada dos veces en linea %d." % lineNumber)
+            sys.exit()
+        else:
+            global inParams
+            if inParams:
+                procs[current_scope][1].append(p[1])
+            memVar = func_memLocal.generarEspacioMemoria(tipo, tamVec)
+            varDim.append(p[3])
+            varMemDim.append(memVar)
+            procs[current_scope][2][p[3]] = [memVar, limiteSuperior]
 
 def p_tipo(p):
     '''
@@ -227,6 +258,7 @@ def p_cte_int(p):
         constantes[p[1]] = memConstantes.generarEspacioMemoria('INT')
     pilaO.append(constantes[p[1]])
     pTipos.append('INT')
+    p[0] = p[1]
 
 def p_cte_float(p):
     '''
@@ -358,7 +390,7 @@ def p_t_new_func(p):
         print("ERROR: variable/funcion con el mismo nombre declarada dos veces en linea %d." % lineNumber)
         sys.exit()
     else:
-        procs['global'][p[2]] = memGlobales.generarEspacioMemoria(p[1])
+        procs['global'][p[2]] = [memGlobales.generarEspacioMemoria(p[1]), None]
 
 def p_t_new_voidFunc(p):
     '''
@@ -397,13 +429,10 @@ def p_return_accion1(p):
     tipoRetorno = pTipos.pop()
     tipoFunc = procs[current_scope][0]
     if scube.semantic_cube[tipoFunc][tipoRetorno]['='] > 0:
-        nuevoCuadruplo = ['=', valorRetorno, None, current_scope]
+        dirCurrScope = procs['global'][current_scope][0]
+        nuevoCuadruplo = ['RETURN', valorRetorno, None, dirCurrScope]
         cuadruplos.append(nuevoCuadruplo)
         global contCuadruplos
-        contCuadruplos += 1
-
-        nuevoCuadruplo = ['RETURN', valorRetorno, None, current_scope]
-        cuadruplos.append(nuevoCuadruplo)
         contCuadruplos += 1
     else:
         print 'ERROR: Type mismatch in line %d.' % lineNumber
@@ -481,9 +510,22 @@ def p_asignacion_accion2(p):
 
 def p_asignacion2(p):
     '''
-    asignacion2 : '[' exp ']'
+    asignacion2 : '<' dim_accion2 exp '>'
                 | empty
     '''
+
+def p_dim_accion2(p):
+    '''
+    dim_accion2 :
+    '''
+    variable = pilaO.pop()
+
+    if variable not in varMemDim:
+        print 'ERROR: Variable no dimensionada en linea %d.' % lineNumber
+        sys.exit()
+    else:
+        indiceVar = varMemDim.index(variable)
+        pDim.append(varDim[indiceVar])
 
 def p_condicion(p):
     '''
@@ -940,11 +982,12 @@ def p_accion_llamadaProc5(p):
         #Parche guadalupano
         if scope in procs['global']:
             temp = func_memTemp.generarEspacioMemoria(procs[scope][0])
-            nuevoCuadruplo2 = ['=', scope, None, temp]
+            dirScope = procs['global'][scope][0]
+            nuevoCuadruplo2 = ['=', dirScope, None, temp]
             cuadruplos.append(nuevoCuadruplo2)
             contCuadruplos += 1
             pilaO.append(temp)
-            pTipos.append(numToTipo[procs['global'][scope]/10000])
+            pTipos.append(numToTipo[dirScope/10000])
 
 def p_codigoExpAccion1(p):
     '''
@@ -974,5 +1017,3 @@ with open(fileName) as codeFile:
 
 for cuadruplo in cuadruplos:
     print(cuadruplo)
-print pilaO
-print pTipos

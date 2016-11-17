@@ -12,17 +12,17 @@ class Memoria:
         self.charCount = -1
         self.stringCount = -1
 
-    def generarEspacioMemoria(self, tipo):
+    def generarEspacioMemoria(self, tipo, size=1):
         if tipo == 'INT':
-            return self.generarMemoriaInt()
+            return self.generarMemoriaInt(size)
         if tipo == 'FLOAT':
-            return self.generarMemoriaFloat()
+            return self.generarMemoriaFloat(size)
         if tipo == 'BOOL':
-            return self.generarMemoriaBool()
+            return self.generarMemoriaBool(size)
         if tipo == 'CHAR':
-            return self.generarMemoriaChar()
+            return self.generarMemoriaChar(size)
         if tipo == 'STRING':
-            return self.generarMemoriaString()
+            return self.generarMemoriaString(size)
 
     def generarMemoriaInt(self, size=1):
         mem = self.intCount + 1
