@@ -2,6 +2,7 @@ program test;
 int uno;
 float dos;
 bool tres;
+Vec bool perritos[17];
 {
 
 int ovi(int a, float b) {
@@ -14,12 +15,12 @@ void hugo(float b) {
 }
 
 main() {
+    Vec int gato [13];
 	int a;
 	float b;
 	int c;
 	bool x;
 	bool y;
-	Vec int gato <13>;
     c = a + c;
     if(b>a) {
         c = c - a;
@@ -39,5 +40,6 @@ main() {
         print(x);
     }
 
+    gato[5] = gato[1];
 }
 }

@@ -57,7 +57,7 @@ t_MOREEQUAL = r'>='
 t_DEQUAL = r'=='
 t_DIFF = r'<>'
 
-literals = ";:,\{\}\<\>\+\-\*\/\(\)="
+literals = ";:,\{\}\<\>\+\-\*\/\(\)=\[\]"
 
 t_ignore = " \t"
 
@@ -212,7 +212,7 @@ def p_initialize_var(p):
 
 def p_vector(p):
     '''
-    vector : VEC tipo ID '<' cte_int '>' ';'
+    vector : VEC tipo ID '[' cte_int ']' ';'
     '''
     pilaO.pop()
     tipo = pTipos.pop()
@@ -547,9 +547,37 @@ def p_asignacion_accion2(p):
 
 def p_asignacion2(p):
     '''
-    asignacion2 : '<' dim_accion2 exp '>'
+    asignacion2 : opc_vector
                 | empty
     '''
+
+def p_opc_vector(p):
+    '''
+    opc_vector : '[' dim_accion2 exp ']'
+    '''
+    resulExp = pilaO.pop()
+    resulTipo = pTipos.pop()
+    variable = pDim[-1]
+    if variable in procs['global']:
+        limSup = procs['global'][variable][1]
+    elif variable in procs[current_scope][2]:
+        limSup = procs[current_scope][2][variable][1]
+
+    nuevoCuadruplo = ['VER', resulExp, 0, limSup]
+    cuadruplos.append(nuevoCuadruplo)
+    global contCuadruplos
+    contCuadruplos += 1
+    if resulTipo != 'INT':
+        print 'ERROR: Type mismatch in line %d.' % lineNumber
+        sys.exit()
+    else:
+        temp = func_memTemp.generarEspacioMemoria('INT')
+        nuevoCuadruplo = ['+', temp, resulExp, temp]
+        cuadruplos.append(nuevoCuadruplo)
+        contCuadruplos += 1
+        pilaO.append([temp])
+        pOper.pop()
+        pDim.pop()
 
 def p_dim_accion2(p):
     '''
@@ -563,6 +591,7 @@ def p_dim_accion2(p):
     else:
         indiceVar = varMemDim.index(variable)
         pDim.append(varDim[indiceVar])
+        pOper.append('#')
 
 def p_condicion(p):
     '''
@@ -928,7 +957,7 @@ def p_fin_parentesis(p):
 
 def p_factor1(p):
     '''
-    factor1 : ID '[' exp ']'
+    factor1 : asignacion_accion1 asignacion2
             | accion_llamadaProc1 factor2 ')' accion_llamadaProc5
             | ID
     '''
