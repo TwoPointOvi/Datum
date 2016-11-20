@@ -145,13 +145,22 @@ def p_progam(p):
     '''
     program : t_prog ID ';' declare_vars prog_body
     '''
+    cuadruplos.append(['ENDPROG',None, None, None])
     global procs
     print 'Tabla de Procedimientos:'
     print(procs)
     print ''
     global constantes
+    print 'Tabla vars globales'
+    print procs['global']
+    print 'Tabla vars globales invertida'
+    invGlobVars = { v[0]: [k,v[1]] for k, v in procs['global'].items()}
+    print invGlobVars
     print 'Tabla de constantes:'
     print constantes
+    print 'Tabla de constantes invertida'
+    invConstDict = {v:k for k, v in constantes.items()}
+    print invConstDict
     print ''
 
 def p_t_prog(p):
@@ -193,6 +202,7 @@ def p_var(p):
             if inParams:
                 procs[current_scope][1].append(p[1])
             procs[current_scope][2][p[2]] = [func_memLocal.generarEspacioMemoria(p[1]), None]
+            print procs
 
 def p_initialize_var(p):
     '''
@@ -898,8 +908,8 @@ def p_op_exp(p):
 def p_factor(p):
     '''
     factor : '(' inicio_parentesis expresion fin_parentesis ')'
-            | codigoExpAccion1
             | constants
+            | codigoExpAccion1
     '''
 
 def p_inicio_parentesis(p):
@@ -937,7 +947,9 @@ def p_factor1(p):
             tipo = numToTipo[tipo]
             pilaO.append(variable)
         else:
-            print("ERROR: variable no declarada")
+            print procs
+            print p[1]
+            print("ERROR: variable no declarada in %d" % lineNumber)
             sys.exit()
         pTipos.append(tipo)
 
@@ -1001,7 +1013,7 @@ def p_accion_llamadaProc5(p):
         print 'ERROR: Incongruencia de numero de parametros de la funcion en linea %d.' % lineNumber
         sys.exit()
     else:
-        nuevoCuadruplo = ['GOSUB', scope, procs[scope][3]]
+        nuevoCuadruplo = ['GOSUB', scope, None, procs[scope][3]]
         cuadruplos.append(nuevoCuadruplo)
         global contCuadruplos
         contCuadruplos += 1
