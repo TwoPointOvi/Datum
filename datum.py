@@ -1,4 +1,5 @@
 import sys
+import ast
 import ply.lex as lex
 import ply.yacc as yacc
 import semantic_cube as scube
@@ -227,7 +228,8 @@ def p_vector(p):
     vector : VEC tipo ID '[' cte_int ']' ';'
     '''
     pilaO.pop()
-    tipo = pTipos.pop()
+    pTipos.pop()
+    tipo = p[2]
     tamVec = int(p[5])
     limiteSuperior = tamVec - 1
     if current_scope == 'global':
@@ -277,8 +279,8 @@ def p_cte_int(p):
     '''
     if(p[1] not in constantes.keys()):
         #constantes[p[1]] = 'INT'
-        constantes[p[1]] = memConstantes.generarEspacioMemoria('INT')
-    pilaO.append(constantes[p[1]])
+        constantes[int(p[1])] = memConstantes.generarEspacioMemoria('INT')
+    pilaO.append(constantes[int(p[1])])
     pTipos.append('INT')
     p[0] = p[1]
 
@@ -288,8 +290,8 @@ def p_cte_float(p):
     '''
     if(p[1] not in constantes.keys()):
         #constantes[p[1]] = 'FLOAT'
-        constantes[p[1]] = memConstantes.generarEspacioMemoria('FLOAT')
-    pilaO.append(constantes[p[1]])
+        constantes[float(p[1])] = memConstantes.generarEspacioMemoria('FLOAT')
+    pilaO.append(constantes[float(p[1])])
     pTipos.append('FLOAT')
 
 def p_cte_bool(p):
@@ -299,8 +301,8 @@ def p_cte_bool(p):
     '''
     if(p[1] not in constantes.keys()):
         #constantes[p[1]] = 'BOOL'
-        constantes[p[1]] = memConstantes.generarEspacioMemoria('BOOL')
-    pilaO.append(constantes[p[1]])
+        constantes[ast.literal_eval(p[1])] = memConstantes.generarEspacioMemoria('BOOL')
+    pilaO.append(constantes[ast.literal_eval(p[1])])
     pTipos.append('BOOL')
 
 def p_cte_char(p):
@@ -1102,5 +1104,7 @@ else:
 with open(fileName) as codeFile:
     parser.parse(codeFile.read())
 
+contador = -1
 for cuadruplo in cuadruplos:
-    print(cuadruplo)
+    contador += 1
+    print(str(contador) + '. ' + str(cuadruplo))

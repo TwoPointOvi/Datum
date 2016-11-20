@@ -40,7 +40,8 @@ main() {
         print(x);
     }
 
-    gato[5] = gato[1];
-    x = True;
+    gato[5] = gato[gato[6]];
+    x = False;
+    y = True;
 }
 }
