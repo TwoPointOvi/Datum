@@ -149,22 +149,6 @@ def p_progam(p):
     cuadruplos.append(['ENDPROG',None, None, None])
     global contCuadruplos
     contCuadruplos += 1
-    global procs
-    print 'Tabla de Procedimientos:'
-    print(procs)
-    print ''
-    global constantes
-    print 'Tabla vars globales'
-    print procs['global']
-    print 'Tabla vars globales invertida'
-    invGlobVars = { v[0]: [k,v[1]] for k, v in procs['global'].items()}
-    print invGlobVars
-    print 'Tabla de constantes:'
-    print constantes
-    print 'Tabla de constantes invertida'
-    invConstDict = {v:k for k, v in constantes.items()}
-    print invConstDict
-    print ''
 
 def p_jump_main(p):
     '''
@@ -215,7 +199,6 @@ def p_var(p):
             if inParams:
                 procs[current_scope][1].append(p[1])
             procs[current_scope][2][p[2]] = [func_memLocal.generarEspacioMemoria(p[1]), None]
-            print procs
 
 def p_initialize_var(p):
     '''
@@ -997,8 +980,6 @@ def p_factor1(p):
             tipo = numToTipo[tipo]
             pilaO.append(variable)
         else:
-            print procs
-            print p[1]
             print("ERROR: variable no declarada in %d" % lineNumber)
             sys.exit()
         pTipos.append(tipo)
@@ -1104,7 +1085,20 @@ else:
 with open(fileName) as codeFile:
     parser.parse(codeFile.read())
 
+if len(sys.argv) < 3:
+    fileOutName = 'out.datum'
+else:
+    fileOutName = sys.argv[2] + '.datum'
+
+objectFile = open(fileOutName, 'w')
+#Guardar la tabla de variables y tabla de constantes
+objectFile.write(str(procs))
+objectFile.write('\n'+str(constantes))
+
 contador = -1
 for cuadruplo in cuadruplos:
     contador += 1
-    print(str(contador) + '. ' + str(cuadruplo))
+    #print(str(contador) + '. ' + str(cuadruplo))
+    objectFile.write('\n'+str(cuadruplo))
+
+objectFile.close()
