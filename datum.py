@@ -28,7 +28,9 @@ reserved = {
     'and' : 'AND',
     'or' : 'OR',
     'return' : 'RETURN',
-    'read' : 'READ'
+    'read' : 'READ',
+    'True' : 'TRUE',
+    'False' : 'FALSE'
 }
 
 #Tokens
@@ -38,7 +40,6 @@ tokens = [
     'CTE_FLOAT',
     'CTE_STR',
     'CTE_CHAR',
-    'CTE_BOOL',
     'LESSEQUAL',
     'MOREEQUAL',
     'DEQUAL',
@@ -51,7 +52,6 @@ t_CTE_INT = r'(\+|-)?[0-9]+'
 t_CTE_FLOAT = r'(\+|-)?[0-9]*\.[0-9]+'
 t_CTE_STR = r'\".*\"'
 t_CTE_CHAR = r'\'.\''
-t_CTE_BOOL = r'True|False'
 t_LESSEQUAL = r'<='
 t_MOREEQUAL = r'>='
 t_DEQUAL = r'=='
@@ -272,7 +272,8 @@ def p_cte_float(p):
 
 def p_cte_bool(p):
     '''
-    cte_bool : CTE_BOOL
+    cte_bool : TRUE
+            | FALSE
     '''
     if(p[1] not in constantes.keys()):
         #constantes[p[1]] = 'BOOL'
@@ -527,6 +528,9 @@ def p_asignacion_accion1(p):
         tipo = tipo/10000
         tipo = numToTipo[tipo]
         pilaO.append(variable)
+    else:
+        print 'ERROR: %s Variable no declarada en linea %d.' % (str(p[1]), lineNumber)
+        sys.exit()
     pTipos.append(tipo)
 
 def p_asignacion_accion2(p):

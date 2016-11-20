@@ -41,5 +41,6 @@ main() {
     }
 
     gato[5] = gato[1];
+    x = True;
 }
 }
