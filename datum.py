@@ -143,9 +143,11 @@ func_memTemp = mem.Memoria(inicioTemp)
 #Gramatica
 def p_progam(p):
     '''
-    program : t_prog ID ';' declare_vars prog_body
+    program : t_prog ID ';' declare_vars jump_main prog_body
     '''
     cuadruplos.append(['ENDPROG',None, None, None])
+    global contCuadruplos
+    contCuadruplos += 1
     global procs
     print 'Tabla de Procedimientos:'
     print(procs)
@@ -162,6 +164,16 @@ def p_progam(p):
     invConstDict = {v:k for k, v in constantes.items()}
     print invConstDict
     print ''
+
+def p_jump_main(p):
+    '''
+    jump_main :
+    '''
+    nuevoCuadruplo = ['GOTO', None, None, None]
+    cuadruplos.append(nuevoCuadruplo)
+    global contCuadruplos
+    contCuadruplos += 1
+    pSaltos.append(contCuadruplos - 1)
 
 def p_t_prog(p):
     '''
@@ -352,6 +364,9 @@ def p_t_main(p):
     func_memLocal = mem.Memoria(inicioLocal)
     func_memTemp = mem.Memoria(inicioTemp)
     procs[current_scope] = [p[1], [], {}, contCuadruplos, []]
+
+    saltoMain = pSaltos.pop()
+    cuadruplos[saltoMain][3] = contCuadruplos
 
 def p_funciones(p):
     '''
