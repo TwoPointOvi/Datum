@@ -1050,14 +1050,21 @@ def p_accion_llamadaProc1(p):
 
 def p_factor2(p):
     '''
-    factor2 : exp accion_llamadaProc3 factor3
+    factor2 : accion_fondo_falso expresion accion_llamadaProc3 factor3
             | empty
     '''
+
+def p_accion_fondo_falso(p):
+    '''
+    accion_fondo_falso :
+    '''
+    pOper.append('(')
 
 def p_accion_llamadaProc3(p):
     '''
     accion_llamadaProc3 :
     '''
+    pOper.pop()
     argumento = pilaO.pop()
     tipoArg = pTipos.pop()
     if tipoArg != procs[scopeParametros[-1]][1][contParametros[-1]]:
@@ -1071,7 +1078,7 @@ def p_accion_llamadaProc3(p):
 
 def p_factor3(p):
     '''
-    factor3 : ',' accion_llamadaProc4 exp accion_llamadaProc3 factor3
+    factor3 : ',' accion_llamadaProc4 accion_fondo_falso exp accion_llamadaProc3 factor3
             | empty
     '''
 
