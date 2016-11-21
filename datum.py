@@ -4,6 +4,7 @@ import ply.lex as lex
 import ply.yacc as yacc
 import semantic_cube as scube
 import memoria as mem
+import ast
 
 #Lenguaje Datum
 
@@ -282,6 +283,8 @@ def p_cte_bool(p):
     cte_bool : TRUE
             | FALSE
     '''
+    print "bool constant in p[1] "
+    print p[1]
     if(p[1] not in constantes.keys()):
         #constantes[p[1]] = 'BOOL'
         constantes[ast.literal_eval(p[1])] = memConstantes.generarEspacioMemoria('BOOL')
