@@ -261,7 +261,7 @@ def p_cte_int(p):
     '''
     cte_int : CTE_INT
     '''
-    if(p[1] not in constantes.keys()):
+    if(int(p[1]) not in constantes.keys()):
         #constantes[p[1]] = 'INT'
         constantes[int(p[1])] = memConstantes.generarEspacioMemoria('INT')
     pilaO.append(constantes[int(p[1])])
@@ -272,7 +272,7 @@ def p_cte_float(p):
     '''
     cte_float : CTE_FLOAT
     '''
-    if(p[1] not in constantes.keys()):
+    if(float(p[1]) not in constantes.keys()):
         #constantes[p[1]] = 'FLOAT'
         constantes[float(p[1])] = memConstantes.generarEspacioMemoria('FLOAT')
     pilaO.append(constantes[float(p[1])])
@@ -283,7 +283,7 @@ def p_cte_bool(p):
     cte_bool : TRUE
             | FALSE
     '''
-    if(p[1] not in constantes.keys()):
+    if(ast.literal_eval(p[1]) not in constantes.keys()):
         #constantes[p[1]] = 'BOOL'
         constantes[ast.literal_eval(p[1])] = memConstantes.generarEspacioMemoria('BOOL')
     pilaO.append(constantes[ast.literal_eval(p[1])])
