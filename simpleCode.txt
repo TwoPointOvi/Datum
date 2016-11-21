@@ -3,6 +3,7 @@ int uno;
 float dos;
 bool tres;
 Vec bool perritos[17];
+Vec string titulos[5];
 {
 
 int ovi(int a, float b) {
@@ -43,5 +44,9 @@ main() {
     gato[5] = gato[gato[6]];
     x = False;
     y = True;
+
+    a + c;
+
+    barchart(gato, gato, "AlgoX", "algoY", "AlgoTit");
 }
 }

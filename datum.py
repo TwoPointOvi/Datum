@@ -51,7 +51,7 @@ tokens += list(reserved.values())
 
 t_CTE_INT = r'(\+|-)?[0-9]+'
 t_CTE_FLOAT = r'(\+|-)?[0-9]*\.[0-9]+'
-t_CTE_STR = r'\".*\"'
+t_CTE_STR = r'\"([^\\\n]|(\\.))*?\"'
 t_CTE_CHAR = r'\'.\''
 t_LESSEQUAL = r'<='
 t_MOREEQUAL = r'>='
@@ -715,9 +715,38 @@ def p_graficar(p):
 
 def p_graficar2(p):
     '''
-    graficar2 : charts '(' ID ',' ID ',' title ',' title ',' title ')'
+    graficar2 : other_chart
                 | pie_chart
     '''
+
+def p_other_chart(p):
+    '''
+    other_chart : charts '(' exp ',' exp ',' exp ',' exp ',' exp ')'
+    '''
+    titulo = pilaO.pop()
+    tipoTitulo = pTipos.pop()
+    yTitulo = pilaO.pop()
+    tipoYT = pTipos.pop()
+    xTitulo = pilaO.pop()
+    tipoXT = pTipos.pop()
+    yVals = pilaO.pop()
+    tipoYV = pTipos.pop()
+    xVals = pilaO.pop()
+    tipoXV = pTipos.pop()
+
+    if all(x == 'STRING' for x in (tipoTitulo, tipoXT, tipoYT)) and all(x == 'INT' or x == 'FLOAT' for x in (tipoXV, tipoYV)):
+
+        nuevoCuadruplo = [p[1], xVals, yVals, None]
+        cuadruplos.append(nuevoCuadruplo)
+        global contCuadruplos
+        contCuadruplos += 1
+
+        nuevoCuadruplo = [p[1]+'TITLE', xTitulo, yTitulo, titulo]
+        cuadruplos.append(nuevoCuadruplo)
+        contCuadruplos += 1
+    else:
+        print 'ERROR: Type mismatch in line %d.' % lineNumber
+        sys.exit()
 
 def p_charts(p):
     '''
@@ -725,17 +754,34 @@ def p_charts(p):
             | SCATTERCHART
             | LINECHART
     '''
+    p[0] = p[1].upper()
 
 def p_pie_chart(p):
     '''
-    pie_chart : PIECHART '(' ID ',' ID ',' title ')'
+    pie_chart : PIECHART '(' exp ',' exp ',' exp ')'
     '''
 
-def p_title(p):
-    '''
-    title : ID
-            | CTE_STR
-    '''
+    titulo = pilaO.pop()
+    tipoTitulo = pTipos.pop()
+    labels = pilaO.pop()
+    tipoLabels =pTipos.pop()
+    info = pilaO.pop()
+    tipoInfo = pTipos.pop()
+
+    if tipoTitulo == 'STRING' and tipoLabels == 'STRING' and (tipoInfo == 'INT' or tipoInfo == 'FLOAT'):
+
+        tipoChart = p[1].upper()
+        nuevoCuadruplo = [tipoChart, info, labels, None]
+        cuadruplos.append(nuevoCuadruplo)
+        global contCuadruplos
+        contCuadruplos += 1
+
+        nuevoCuadruplo = [tipoChart+'TITLE', None, None, titulo]
+        cuadruplos.append(nuevoCuadruplo)
+        contCuadruplos += 1
+    else:
+        print 'Type mismatch in line %d.' % lineNumber
+        sys.exit()
 
 def p_expresion(p):
     '''
@@ -1058,6 +1104,9 @@ def p_accion_llamadaProc5(p):
             contCuadruplos += 1
             pilaO.append(temp)
             pTipos.append(numToTipo[dirScope/10000])
+        else:
+            pilaO.append(scope)
+            pTipos.append('VOID')
 
 def p_codigoExpAccion1(p):
     '''
@@ -1098,7 +1147,7 @@ objectFile.write('\n'+str(constantes))
 contador = -1
 for cuadruplo in cuadruplos:
     contador += 1
-    #print(str(contador) + '. ' + str(cuadruplo))
+    print(str(contador) + '. ' + str(cuadruplo))
     objectFile.write('\n'+str(cuadruplo))
 
 objectFile.close()
