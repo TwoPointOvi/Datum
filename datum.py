@@ -1,4 +1,5 @@
 import sys
+import ast
 import ply.lex as lex
 import ply.yacc as yacc
 import semantic_cube as scube
@@ -144,25 +145,21 @@ func_memTemp = mem.Memoria(inicioTemp)
 #Gramatica
 def p_progam(p):
     '''
-    program : t_prog ID ';' declare_vars prog_body
+    program : t_prog ID ';' declare_vars jump_main prog_body
     '''
     cuadruplos.append(['ENDPROG',None, None, None])
-    global procs
-    print 'Tabla de Procedimientos:'
-    print(procs)
-    print ''
-    global constantes
-    print 'Tabla vars globales'
-    print procs['global']
-    print 'Tabla vars globales invertida'
-    invGlobVars = { v[0]: [k,v[1]] for k, v in procs['global'].items()}
-    print invGlobVars
-    print 'Tabla de constantes:'
-    print constantes
-    print 'Tabla de constantes invertida'
-    invConstDict = {v:k for k, v in constantes.items()}
-    print invConstDict
-    print ''
+    global contCuadruplos
+    contCuadruplos += 1
+
+def p_jump_main(p):
+    '''
+    jump_main :
+    '''
+    nuevoCuadruplo = ['GOTO', None, None, None]
+    cuadruplos.append(nuevoCuadruplo)
+    global contCuadruplos
+    contCuadruplos += 1
+    pSaltos.append(contCuadruplos - 1)
 
 def p_t_prog(p):
     '''
@@ -203,7 +200,6 @@ def p_var(p):
             if inParams:
                 procs[current_scope][1].append(p[1])
             procs[current_scope][2][p[2]] = [func_memLocal.generarEspacioMemoria(p[1]), None]
-            print procs
 
 def p_initialize_var(p):
     '''
@@ -216,7 +212,8 @@ def p_vector(p):
     vector : VEC tipo ID '[' cte_int ']' ';'
     '''
     pilaO.pop()
-    tipo = pTipos.pop()
+    pTipos.pop()
+    tipo = p[2]
     tamVec = int(p[5])
     limiteSuperior = tamVec - 1
     if current_scope == 'global':
@@ -355,6 +352,9 @@ def p_t_main(p):
     func_memLocal = mem.Memoria(inicioLocal)
     func_memTemp = mem.Memoria(inicioTemp)
     procs[current_scope] = [p[1], [], {}, contCuadruplos, []]
+
+    saltoMain = pSaltos.pop()
+    cuadruplos[saltoMain][3] = contCuadruplos
 
 def p_funciones(p):
     '''
@@ -983,8 +983,6 @@ def p_factor1(p):
             tipo = numToTipo[tipo]
             pilaO.append(variable)
         else:
-            print procs
-            print p[1]
             print("ERROR: variable no declarada in %d" % lineNumber)
             sys.exit()
         pTipos.append(tipo)
@@ -1090,5 +1088,20 @@ else:
 with open(fileName) as codeFile:
     parser.parse(codeFile.read())
 
+if len(sys.argv) < 3:
+    fileOutName = 'out.datum'
+else:
+    fileOutName = sys.argv[2] + '.datum'
+
+objectFile = open(fileOutName, 'w')
+#Guardar la tabla de variables y tabla de constantes
+objectFile.write(str(procs))
+objectFile.write('\n'+str(constantes))
+
+contador = -1
 for cuadruplo in cuadruplos:
-    print(cuadruplo)
+    contador += 1
+    #print(str(contador) + '. ' + str(cuadruplo))
+    objectFile.write('\n'+str(cuadruplo))
+
+objectFile.close()
