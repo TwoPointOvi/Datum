@@ -90,6 +90,8 @@ while isRunning:
         else:
             actualMemory[actualCuadruplo[3]] = oper1+oper2
         currentQuadruple = currentQuadruple + 1
+        print currentQuadruple, saltosSubrutine, actualMemory, memoryStack
+        print "+ operator"
     elif actualCuadruplo[0] == '-':
         #subtraction operation
         #check if first value is a constant
@@ -107,6 +109,8 @@ while isRunning:
         else:
             actualMemory[actualCuadruplo[3]] = oper1-oper2
         currentQuadruple = currentQuadruple + 1
+        print currentQuadruple, saltosSubrutine, actualMemory, memoryStack
+        print "- operator"
     elif actualCuadruplo[0] == '*':
         #multiplication operation
         #check if first value is a constant
@@ -206,7 +210,7 @@ while isRunning:
     elif actualCuadruplo[0] == 'GOSUB':
         #got to first quadruple of the method
         saltosSubrutine.append(currentQuadruple+1)
-        currentQuadruple = procs[actualCuadruplo[1]][3] + quadrupleOffset
+        currentQuadruple = actualCuadruplo[3] + quadrupleOffset
     elif actualCuadruplo[0] == 'ERA':
         #generate new memory for the new context
         memoryStack.append(actualMemory)
@@ -246,6 +250,8 @@ while isRunning:
         currentScope = scopeStack.pop()
         actualMemory = memoryStack.pop()
         currentQuadruple = saltosSubrutine.pop()
+        print currentQuadruple
+        print "retorno currentQuadruple"
     elif actualCuadruplo[0] == 'RETURN':
         if actualCuadruplo[1] > 160000:
             globalMemory[actualCuadruplo[3]] = constantsMemory[actualCuadruplo[1]]
