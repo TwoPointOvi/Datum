@@ -69,10 +69,19 @@ def createMemory(methodName):
 
 currentScope = 'main'
 actualMemory = createMemory(currentScope)
+
+def getVAStoredInAnotherVA(quad):
+    for i in range(0,len(quad)):
+        if type(quad[i]) is list:
+            quad[i] = actualMemory[quad[i][0]]
+
+    return quad
+
 #Execution Loop
 while isRunning:
 
     actualCuadruplo = ast.literal_eval(cuadruplos[currentQuadruple])
+    actualCuadruplo = getVAStoredInAnotherVA(actualCuadruplo)
 
     if actualCuadruplo[0] == '+':
         #sum operation
@@ -171,8 +180,6 @@ while isRunning:
         if oper1 == None:
             print("Error: variable not initialized.")
         else:
-            print actualCuadruplo[3]
-            print actualMemory
             actualMemory[actualCuadruplo[3]] = oper1
         currentQuadruple = currentQuadruple + 1
     elif actualCuadruplo[0] == 'and':
@@ -349,7 +356,7 @@ while isRunning:
         if actualCuadruplo[1] < 60000:
             paramValue = globalMemory[actualCuadruplo[1]]
         elif actualCuadruplo[1] > 160000:
-            paramValue = globalMemory[actualCuadruplo[1]]
+            paramValue = constantsMemory[actualCuadruplo[1]]
         else:
             prevMemory = memoryStack.pop()
             paramValue = prevMemory[actualCuadruplo[1]]

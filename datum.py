@@ -90,7 +90,7 @@ numToTipo = {   1:'INT',
                 2:'FLOAT',
                 3:'BOOL',
                 4:'CHAR',
-                5:'STRING',
+                0:'STRING',
                 -1:'ERROR'}
 
 #Tabla de constantes
@@ -531,6 +531,7 @@ def p_asignacion_accion1(p):
         tipo = variable
         tipo = tipo/10000
         tipo = tipo % 5
+        print tipo
         tipo = numToTipo[tipo]
         pilaO.append(variable)
     elif p[1] in procs['global'].keys():
