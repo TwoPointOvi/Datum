@@ -6,47 +6,14 @@ Vec bool perritos[17];
 Vec string titulos[5];
 {
 
-int ovi(int a, float b) {
-    a = a + 5;
-    return a;
-}
-
-void hugo(float b) {
-    print(b);
+int ovi(int c, int d, string x, float t) {
+    int b;
+    b = 5;
+    return b;
 }
 
 main() {
-    Vec int gato [13];
-	int a;
-	float b;
-	int c;
-	bool x;
-	bool y;
-    c = a + c;
-    if(b>a) {
-        c = c - a;
-    }
-    if(a<c) {
-        c = c - a;
-    }
-	print (c);
-	print (a + 10 + b);
-    while(c>a) {
-        a = a + c;
-    }
-    a = ovi(ovi(a,b), b);
-    hugo(b);
-
-    if (x and y) {
-        print(x);
-    }
-
-    gato[5] = gato[gato[6]];
-    x = False;
-    y = True;
-
-    a + c;
-
-    barchart(gato, gato, "AlgoX", "algoY", "AlgoTit");
+    int a;
+    a = ovi(0, 1, "hola", 2.3);
 }
 }

@@ -1059,7 +1059,7 @@ def p_accion_llamadaProc1(p):
 
 def p_factor2(p):
     '''
-    factor2 : accion_fondo_falso expresion accion_llamadaProc3 factor3
+    factor2 : accion_fondo_falso expresion accion_llamadaProc3 accion_llamadaProc4 factor3
             | empty
     '''
 
@@ -1087,7 +1087,7 @@ def p_accion_llamadaProc3(p):
 
 def p_factor3(p):
     '''
-    factor3 : ',' accion_llamadaProc4 accion_fondo_falso exp accion_llamadaProc3 factor3
+    factor3 : ',' accion_fondo_falso exp accion_llamadaProc3 accion_llamadaProc4 factor3
             | empty
     '''
 
@@ -1103,7 +1103,7 @@ def p_accion_llamadaProc5(p):
     '''
     scope = scopeParametros.pop()
     parametros = contParametros.pop()
-    if len(procs[scope][1]) != parametros+1:
+    if len(procs[scope][1]) != parametros:
         print 'ERROR: Incongruencia de numero de parametros de la funcion en linea %d.' % lineNumber
         sys.exit()
     else:
