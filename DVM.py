@@ -164,11 +164,15 @@ while isRunning:
         #check if first value is a constant
         if actualCuadruplo[1] > 160000:
             oper1 = constantsMemory[actualCuadruplo[1]]
+        elif actualCuadruplo[1] < 60000:
+            oper1 = globalMemory[actualCuadruplo[1]]
         else:
             oper1 = actualMemory[actualCuadruplo[1]]
         if oper1 == None:
             print("Error: variable not initialized.")
         else:
+            print actualCuadruplo[3]
+            print actualMemory
             actualMemory[actualCuadruplo[3]] = oper1
         currentQuadruple = currentQuadruple + 1
     elif actualCuadruplo[0] == 'and':
@@ -211,7 +215,6 @@ while isRunning:
             oper1 = globalMemory[actualCuadruplo[1]]
         else:
             oper1 = actualMemory[actualCuadruplo[1]]
-
         if actualCuadruplo[2] > 160000:
             oper2 = constantsMemory[actualCuadruplo[2]]
         elif actualCuadruplo[2] < 60000:
@@ -223,6 +226,90 @@ while isRunning:
             print("Error: variable not initialized. == operator.")
         else:
             actualMemory[actualCuadruplo[3]] = (oper1 == oper2)
+
+        currentQuadruple = currentQuadruple + 1
+    elif actualCuadruplo[0] == '<':
+        if actualCuadruplo[1] > 160000:
+            oper1 = constantsMemory[actualCuadruplo[1]]
+        elif actualCuadruplo[1] < 60000:
+            oper1 = globalMemory[actualCuadruplo[1]]
+        else:
+            oper1 = actualMemory[actualCuadruplo[1]]
+
+        if actualCuadruplo[2] > 160000:
+            oper2 = constantsMemory[actualCuadruplo[2]]
+        elif actualCuadruplo[2] < 60000:
+            oper2 = globalMemory[actualCuadruplo[2]]
+        else:
+            oper2 = actualMemory[actualCuadruplo[2]]
+
+        if oper1 == None or oper2 == None:
+            print("Error: variable not initialized. < operator.")
+        else:
+            actualMemory[actualCuadruplo[3]] = (oper1 < oper2)
+
+        currentQuadruple = currentQuadruple + 1
+    elif actualCuadruplo[0] == '>=':
+        if actualCuadruplo[1] > 160000:
+            oper1 = constantsMemory[actualCuadruplo[1]]
+        elif actualCuadruplo[1] < 60000:
+            oper1 = globalMemory[actualCuadruplo[1]]
+        else:
+            oper1 = actualMemory[actualCuadruplo[1]]
+
+        if actualCuadruplo[2] > 160000:
+            oper2 = constantsMemory[actualCuadruplo[2]]
+        elif actualCuadruplo[2] < 60000:
+            oper2 = globalMemory[actualCuadruplo[2]]
+        else:
+            oper2 = actualMemory[actualCuadruplo[2]]
+
+        if oper1 == None or oper2 == None:
+            print("Error: variable not initialized. >= operator.")
+        else:
+            actualMemory[actualCuadruplo[3]] = (oper1 >= oper2)
+
+        currentQuadruple = currentQuadruple + 1
+    elif actualCuadruplo[0] == '<=':
+        if actualCuadruplo[1] > 160000:
+            oper1 = constantsMemory[actualCuadruplo[1]]
+        elif actualCuadruplo[1] < 60000:
+            oper1 = globalMemory[actualCuadruplo[1]]
+        else:
+            oper1 = actualMemory[actualCuadruplo[1]]
+
+        if actualCuadruplo[2] > 160000:
+            oper2 = constantsMemory[actualCuadruplo[2]]
+        elif actualCuadruplo[2] < 60000:
+            oper2 = globalMemory[actualCuadruplo[2]]
+        else:
+            oper2 = actualMemory[actualCuadruplo[2]]
+
+        if oper1 == None or oper2 == None:
+            print("Error: variable not initialized. <= operator.")
+        else:
+            actualMemory[actualCuadruplo[3]] = (oper1 <= oper2)
+
+        currentQuadruple = currentQuadruple + 1
+    elif actualCuadruplo[0] == '<>':
+        if actualCuadruplo[1] > 160000:
+            oper1 = constantsMemory[actualCuadruplo[1]]
+        elif actualCuadruplo[1] < 60000:
+            oper1 = globalMemory[actualCuadruplo[1]]
+        else:
+            oper1 = actualMemory[actualCuadruplo[1]]
+
+        if actualCuadruplo[2] > 160000:
+            oper2 = constantsMemory[actualCuadruplo[2]]
+        elif actualCuadruplo[2] < 60000:
+            oper2 = globalMemory[actualCuadruplo[2]]
+        else:
+            oper2 = actualMemory[actualCuadruplo[2]]
+
+        if oper1 == None or oper2 == None:
+            print("Error: variable not initialized. <> operator.")
+        else:
+            actualMemory[actualCuadruplo[3]] = (oper1 != oper2)
 
         currentQuadruple = currentQuadruple + 1
     elif actualCuadruplo[0] == 'print':
@@ -257,17 +344,14 @@ while isRunning:
         currentQuadruple = currentQuadruple + 1
     elif actualCuadruplo[0] == 'PARAM':
         #assign value to the directions in the new memory
-        tempMemoryObject = memoria.Memoria(50000)
-        localMemoryObject = memoria.Memoria(110000)
+        tempMemoryObject = memoria.Memoria(110000)
+        localMemoryObject = memoria.Memoria(50000)
         if actualCuadruplo[1] < 60000:
             paramValue = globalMemory[actualCuadruplo[1]]
         elif actualCuadruplo[1] > 160000:
             paramValue = globalMemory[actualCuadruplo[1]]
         else:
             prevMemory = memoryStack.pop()
-            print prevMemory
-            print memoryStack
-            print actualMemory
             paramValue = prevMemory[actualCuadruplo[1]]
             memoryStack.append(prevMemory)
 
@@ -278,11 +362,11 @@ while isRunning:
 
         currentQuadruple = currentQuadruple + 1
     elif actualCuadruplo[0] == 'VER':
-        if  actualMemory[1] < 60000:
+        if  actualCuadruplo[1] < 60000:
             if globalMemory[actualCuadruplo[1]] < actualCuadruplo[2] or globalMemory[actualCuadruplo[1]] > actualCuadruplo[3]:
                 print "Runtime Error: Index out of bounds."
                 sys.exit()
-        elif actualMemory[1] > 160000:
+        elif actualCuadruplo[1] > 160000:
             if constantsMemory[actualCuadruplo[1]] < actualCuadruplo[2] or constantsMemory[actualCuadruplo[1]] > actualCuadruplo[3]:
                 print "Runtime Error: Index out of bounds."
                 sys.exit()
@@ -296,8 +380,6 @@ while isRunning:
         currentScope = scopeStack.pop()
         actualMemory = memoryStack.pop()
         currentQuadruple = saltosSubrutine.pop()
-        print currentQuadruple
-        print "retorno currentQuadruple"
     elif actualCuadruplo[0] == 'RETURN':
         if actualCuadruplo[1] > 160000:
             globalMemory[actualCuadruplo[3]] = constantsMemory[actualCuadruplo[1]]
