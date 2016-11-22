@@ -565,8 +565,16 @@ def p_opc_vector(p):
     variable = pDim[-1]
     if variable in procs['global']:
         limSup = procs['global'][variable][1]
+        dirBase = procs['global'][variable][0]
     elif variable in procs[current_scope][2]:
         limSup = procs[current_scope][2][variable][1]
+        dirBase = procs[current_scope][2][variable][0]
+
+    if (int(dirBase) not in constantes.keys()):
+        # constantes[p[1]] = 'INT'
+        constantes[int(dirBase)] = memConstantes.generarEspacioMemoria('INT')
+    dirBase = constantes[int(dirBase)]
+
 
     nuevoCuadruplo = ['VER', resulExp, 0, limSup]
     cuadruplos.append(nuevoCuadruplo)
@@ -577,7 +585,7 @@ def p_opc_vector(p):
         sys.exit()
     else:
         temp = func_memTemp.generarEspacioMemoria('INT')
-        nuevoCuadruplo = ['+', temp, resulExp, temp]
+        nuevoCuadruplo = ['+', dirBase, resulExp, temp]
         cuadruplos.append(nuevoCuadruplo)
         contCuadruplos += 1
         pilaO.append([temp])
