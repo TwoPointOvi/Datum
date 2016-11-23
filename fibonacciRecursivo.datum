@@ -1,0 +1,29 @@
+program fibonacciRecursivo;
+{
+
+int getFibonacci(int fibNum) {
+    int ans;
+    int ans2;
+    int param;
+
+    if((fibNum == 1) or (fibNum == 2)) {
+        ans = 1;
+    } else {
+        param = fibNum - 2;
+        ans = getFibonacci(param);
+        param = fibNum - 1;
+        ans2 = getFibonacci(param);
+        ans = ans + ans2;
+    }
+
+    return ans;
+}
+
+main() {
+
+    int n;
+    read(n);
+    n = getFibonacci(n);
+    print(n);
+}
+}
