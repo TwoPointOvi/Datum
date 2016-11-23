@@ -1,0 +1,54 @@
+program sortArray;
+{
+int sort(int a) {
+    a = 1;
+    return a;
+}
+main() {
+    int r;
+    Vec int arr[10];
+    int iter;
+    int val;
+    int temp;
+    int tamVec;
+    int i;
+    int j;
+    string a;
+    val = 10;
+    iter = 0;
+    tamVec = 10;
+    while(iter < tamVec) {
+        arr[iter] = val;
+        iter = iter + 1;
+        val = val - 1;
+    }
+
+    iter = 0;
+    while(iter < tamVec) {
+        print(arr[iter]);
+        iter = iter + 1;
+    }
+    i = 0;
+    while(i < tamVec - 1 ) {
+        j = 1;
+        while(j < tamVec) {
+            if(arr[j - 1] > arr[j]) {
+                temp = arr[j - 1];
+                arr[j - 1] = arr[j];
+                arr[j] = temp;
+            }
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+    a = "hola";
+    print(a);
+    iter = 0;
+    while(iter < tamVec) {
+        print(arr[iter]);
+        iter = iter + 1;
+    }
+}
+
+
+}
