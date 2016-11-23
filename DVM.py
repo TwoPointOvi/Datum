@@ -59,16 +59,12 @@ def getNumTypeBasedOnVirtualAddres(address):
 
 def createMemory(methodName):
     tempGenMem = memoria.Memoria(110000)
-    localGenMem = memoria.Memoria(60000)
+    localGenMem = memoria.Memoria(50000)
     newMemory = {}
     dictionary = procs[methodName][2]
-    for k,v in dictionary.items():
-        if v[1] == None:
-            newMemory[v[0]]=None
-        else:
-            newMemory[v[0]]=[None for i in range(0, v[1])]
+
     for i in range(0, len(procs[methodName][4])):
-        if procs[methodName][4][i]>0:
+        for j in range(0, procs[methodName][4][i]):
             if i<5:
                 newMemory[localGenMem.generarEspacioMemoria(numToTipo[i+1],1)]=None
             else:
@@ -114,6 +110,8 @@ while isRunning:
         #check if first value is a constant
         if actualCuadruplo[1] > 160000:
             oper1 = constantsMemory[actualCuadruplo[1]]
+        elif actualCuadruplo[1] < 60000:
+            oper1 = globalMemory[actualCuadruplo[1]]
         else:
             oper1 = actualMemory[actualCuadruplo[1]]
         #check if the second value is a constant
@@ -219,8 +217,6 @@ while isRunning:
         else:
             oper1 = actualMemory[actualCuadruplo[1]]
 
-        print procs
-        print "OR, ", actualMemory
         if actualCuadruplo[2] > 160000:
             oper2 = constantsMemory[actualCuadruplo[2]]
         elif actualCuadruplo[2] < 60000:
