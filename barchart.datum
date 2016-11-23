@@ -1,0 +1,38 @@
+program bar;
+{
+
+main() {
+
+    Vec int arrX[3];
+    Vec int arrY[3];
+    string x;
+    string y;
+    int tamVec;
+    int iter;
+    int ipt;
+    ipt = 0;
+    iter = 0;
+    tamVec = 3;
+    while(iter < tamVec) {
+        print("x: ");
+        read(ipt);
+        arrX[iter] = ipt;
+        print("y: ");
+        read(ipt);
+        arrY[iter] = ipt;
+        iter = iter + 1;
+    }
+    iter = 0;
+    while(iter < tamVec) {
+        print(arrY[iter]);
+        print(arrX[iter]);
+        iter = iter + 1;
+    }
+    x = "mes";
+    y = "temperatura";
+    barchart(arrX, arrY, x, y, "test");
+
+}
+}
+
+

@@ -1,0 +1,34 @@
+program graficas;
+{
+
+main() {
+
+    Vec int arr[4];
+    Vec string lab[4];
+    int tamVec;
+    int iter;
+    int ipt;
+    string label;
+    label = "no label";
+    ipt = 0;
+    iter = 0;
+    tamVec = 4;
+    while(iter < tamVec) {
+        print("value: ");
+        read(ipt);
+        arr[iter] = ipt;
+        print("label: ");
+        read(label);
+        lab[iter] = label;
+        iter = iter + 1;
+    }
+    iter = 0;
+    while(iter < tamVec) {
+        print(lab[iter]);
+        print(arr[iter]);
+        iter = iter + 1;
+    }
+    piechart(arr, lab, "test");
+
+}
+}

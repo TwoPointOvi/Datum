@@ -1,0 +1,29 @@
+program fibonacciIterativo;
+{
+
+main() {
+
+    int fibNum;
+    int iter;
+    int prev;
+    int next;
+    int temp;
+    iter = 0;
+    read(fibNum);
+    if((fibNum == 1) or (fibNum == 2)) {
+        print(1);
+    }else {
+        prev = 1;
+        next = 1;
+        iter = 2;
+        while(iter < fibNum) {
+            temp = prev + next;
+            prev = next;
+            next = temp;
+            iter = iter + 1;
+        }
+        print(temp);
+    }
+
+}
+}
