@@ -538,7 +538,6 @@ def p_asignacion_accion1(p):
         tipo = variable
         tipo = tipo/10000
         tipo = tipo % 5
-        print tipo
         tipo = numToTipo[tipo]
         pilaO.append(variable)
     elif p[1] in procs['global'].keys():
@@ -753,9 +752,27 @@ def p_other_chart(p):
     xVals = pilaO.pop()
     tipoXV = pTipos.pop()
 
+    datosX = varDim[varMemDim.index(xVals)]
+    datosY = varDim[varMemDim.index(yVals)]
+
     if all(x == 'STRING' for x in (tipoTitulo, tipoXT, tipoYT)) and all(x == 'INT' or x == 'FLOAT' for x in (tipoXV, tipoYV)):
 
-        nuevoCuadruplo = [p[1], xVals, yVals, None]
+        if datosX in procs[current_scope][2].keys():
+            tamDatosX = procs[current_scope][2][datosX][1]
+        elif datosX in procs['global'].keys():
+            tamDatosX = procs['global'][datosX][1]
+        else:
+            print("ERROR: arreglo no declarado")
+            sys.exit()
+        if datosY in procs[current_scope][2].keys():
+            tamDatosY = procs[current_scope][2][datosY][1]
+        elif datosY in procs['global'].keys():
+            tamDatosY = procs['global'][datosY][1]
+        else:
+            print("ERROR: arreglo no declarado")
+            sys.exit()
+        #checar que tamdatosy y tamdatosx sean del mismo tam
+        nuevoCuadruplo = [p[1], xVals, yVals, tamDatosX+1]
         cuadruplos.append(nuevoCuadruplo)
         global contCuadruplos
         contCuadruplos += 1

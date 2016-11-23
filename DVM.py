@@ -219,6 +219,8 @@ while isRunning:
         else:
             oper1 = actualMemory[actualCuadruplo[1]]
 
+        print procs
+        print "OR, ", actualMemory
         if actualCuadruplo[2] > 160000:
             oper2 = constantsMemory[actualCuadruplo[2]]
         elif actualCuadruplo[2] < 60000:
@@ -229,10 +231,6 @@ while isRunning:
         if oper1 == None or oper2 == None:
             print("Error: variable not initialized.")
         else:
-            print actualMemory
-            print oper1," opers ", oper2
-            oper1 = ast.literal_eval(oper1)
-            oper2 = ast.literal_eval(oper2)
             actualMemory[actualCuadruplo[3]] = oper1 or oper2
         currentQuadruple = currentQuadruple + 1
     elif actualCuadruplo[0] == '>':
@@ -360,6 +358,66 @@ while isRunning:
             actualMemory[actualCuadruplo[3]] = (oper1 != oper2)
 
         currentQuadruple = currentQuadruple + 1
+    elif actualCuadruplo[0] == 'SCATTERCHART' or actualCuadruplo[0] == 'LINECHART' or actualCuadruplo[0] == 'BARCHART':
+        chartType = actualCuadruplo[0]
+        dirBaseDatosX = actualCuadruplo[1]
+        dirBaseDatosY = actualCuadruplo[2]
+        tamDatosX = actualCuadruplo[3]
+
+        currentQuadruple = currentQuadruple + 1
+        actualCuadruplo = ast.literal_eval(cuadruplos[currentQuadruple])
+        actualCuadruplo = getVAStoredInAnotherVA(actualCuadruplo)
+
+        dirChartTitle = actualCuadruplo[3]
+        dirChartAxisXTitle = actualCuadruplo[1]
+        dirChartAxisYTitle = actualCuadruplo[2]
+
+        if dirChartTitle > 160000:
+            chartTitle = constantsMemory[dirChartTitle]
+        elif dirChartTitle < 60000:
+            chartTitle = globalMemory[dirChartTitle]
+        else:
+            chartTitle = actualMemory[dirChartTitle]
+
+        if dirChartAxisXTitle > 160000:
+            xLabel = constantsMemory[dirChartAxisXTitle]
+        elif dirChartAxisXTitle < 60000:
+            xLabel = globalMemory[dirChartAxisXTitle]
+        else:
+            xLabel = actualMemory[dirChartAxisXTitle]
+
+        if dirChartAxisYTitle > 160000:
+            yLabel = constantsMemory[dirChartAxisYTitle]
+        elif dirChartAxisYTitle < 60000:
+            yLabel = globalMemory[dirChartAxisYTitle]
+        else:
+            yLabel = actualMemory[dirChartAxisYTitle]
+
+        arrDatosX = []
+        arrDatosY = []
+        for i in range(0, tamDatosX):
+            if dirBaseDatosX < 60000:
+                arrDatosX.append(globalMemory[dirBaseDatosX+i])
+            else:
+                arrDatosX.append(actualMemory[dirBaseDatosX+i])
+            if dirBaseDatosY < 60000:
+                arrDatosY.append(globalMemory[dirBaseDatosY+i])
+            else:
+                arrDatosY.append(actualMemory[dirBaseDatosY+i])
+
+        chart = plt.figure(chartTitle)
+        if chartType == 'SCATTERCHART':
+            chart = plt.scatter(arrDatosX, arrDatosY)
+        elif chartType == 'BARCHART':
+            chart = plt.bar(arrDatosX, arrDatosY)
+        else:#linechart
+            chart = plt.plot(arrDatosX, arrDatosY)
+
+        chart = plt.xlabel(xLabel)
+        chart = plt.ylabel(yLabel)
+
+        currentQuadruple = currentQuadruple + 1
+
     elif actualCuadruplo[0] == 'PIECHART':
         dirBaseDatos = actualCuadruplo[1]
         dirBaseLabels = actualCuadruplo[2]
