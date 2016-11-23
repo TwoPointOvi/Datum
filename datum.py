@@ -283,9 +283,16 @@ def p_cte_bool(p):
     cte_bool : TRUE
             | FALSE
     '''
-    if(ast.literal_eval(p[1]) not in constantes.keys()):
+
+    op = ast.literal_eval(p[1])
+    if(op not in constantes.keys()):
         #constantes[p[1]] = 'BOOL'
-        constantes[ast.literal_eval(p[1])] = memConstantes.generarEspacioMemoria('BOOL')
+        op = ast.literal_eval(p[1])
+        constantes[op] = memConstantes.generarEspacioMemoria('BOOL')
+    elif constantes[op] < 190000:
+        op = ast.literal_eval(p[1])
+        constantes[op] = memConstantes.generarEspacioMemoria('BOOL')
+
     pilaO.append(constantes[ast.literal_eval(p[1])])
     pTipos.append('BOOL')
 
@@ -710,13 +717,15 @@ def p_lectura(p):
     '''
     lectura : READ '(' ID ')' ';'
     '''
-    if p[3] in procs[current_scope][2].keys() or p[3] in procs['global'].keys():
-        nuevoCuadruplo = ['READ', p[3], None, None]
-        global contCuadruplos
-        cuadruplos.append(nuevoCuadruplo)
-        contCuadruplos += 1
+    if p[3] in procs[current_scope][2].keys():
+        nuevoCuadruplo = ['READ', procs[current_scope][2][p[3]][0], None, None]
+    elif p[3] in procs['global'].keys():
+        nuevoCuadruplo = ['READ', procs['global'][p[3]][0], None, None]
     else:
         print 'ERROR: Variable no declarada en linea %d.' % lineNumber
+    global contCuadruplos
+    cuadruplos.append(nuevoCuadruplo)
+    contCuadruplos = contCuadruplos + 1
 
 def p_graficar(p):
     '''
@@ -770,7 +779,6 @@ def p_pie_chart(p):
     '''
     pie_chart : PIECHART '(' exp ',' exp ',' exp ')'
     '''
-
     titulo = pilaO.pop()
     tipoTitulo = pTipos.pop()
     labels = pilaO.pop()
@@ -778,13 +786,31 @@ def p_pie_chart(p):
     info = pilaO.pop()
     tipoInfo = pTipos.pop()
 
+    datos = varDim[varMemDim.index(info)]
+    labelsData = varDim[varMemDim.index(labels)]
+
     if tipoTitulo == 'STRING' and tipoLabels == 'STRING' and (tipoInfo == 'INT' or tipoInfo == 'FLOAT'):
 
         tipoChart = p[1].upper()
-        nuevoCuadruplo = [tipoChart, info, labels, None]
+        if datos in procs[current_scope][2].keys():
+            tamDatos = procs[current_scope][2][datos][1]
+        elif datos in procs['global'].keys():
+            tamDatos = procs['global'][datos][1]
+        else:
+            print("ERROR: arreglo no declarado")
+            sys.exit()
+        if labelsData in procs[current_scope][2].keys():
+            tamLabels = procs[current_scope][2][labelsData][1]
+        elif labelsData in procs['global'].keys():
+            tamLabels = procs['global'][labelsData][1]
+        else:
+            print("ERROR: arreglo no declarado")
+            sys.exit()
+
+        nuevoCuadruplo = [tipoChart, info, labels, tamDatos+1]
         cuadruplos.append(nuevoCuadruplo)
         global contCuadruplos
-        contCuadruplos += 1
+        contCuadruplos += 2
 
         nuevoCuadruplo = [tipoChart+'TITLE', None, None, titulo]
         cuadruplos.append(nuevoCuadruplo)
@@ -804,7 +830,7 @@ def p_codigoExpAccion9(p):
     '''
     if len(pOper) > 0:
         if (pOper[len(pOper)-1] == '>' or pOper[len(pOper)-1] == '<' or
-            pOper[len(pOper)-1] == '>=' or pOper[len(pOper)-1] == '=>' or
+            pOper[len(pOper)-1] == '>=' or pOper[len(pOper)-1] == '<=' or
             pOper[len(pOper)-1] == '==' or pOper[len(pOper)-1] == '<>'):
             operador = pOper.pop()
             tipoOp2 = pTipos.pop()
@@ -843,8 +869,6 @@ def p_op_relacional(p):
                 | LESSEQUAL
                 | MOREEQUAL
                 | DIFF
-                | AND
-                | OR
     '''
     #codigoExpAccion8
     if p[1] != None:

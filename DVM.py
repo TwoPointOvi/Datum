@@ -1,6 +1,8 @@
 import os
 import ast
 import memoria
+import sys
+import matplotlib.pyplot as plt
 
 with open('out.datum') as cuadruplosFile:
     cuadruplos = cuadruplosFile.readlines()
@@ -38,6 +40,7 @@ numToTipo = {   1:'INT',
                 2:'FLOAT',
                 3:'BOOL',
                 4:'CHAR',
+                0:'STRING',
                 5:'STRING',
                 -1:'ERROR'}
 
@@ -45,6 +48,12 @@ def getTypeBasedOnVirtualAddres(address):
     t = address/10000
     t = t % 5
     t = numToTipo[t]
+
+    return t
+
+def getNumTypeBasedOnVirtualAddres(address):
+    t = address/10000
+    t = t % 5
 
     return t
 
@@ -183,15 +192,47 @@ while isRunning:
             actualMemory[actualCuadruplo[3]] = oper1
         currentQuadruple = currentQuadruple + 1
     elif actualCuadruplo[0] == 'and':
+        if actualCuadruplo[1] > 160000:
+            oper1 = constantsMemory[actualCuadruplo[1]]
+        elif actualCuadruplo[1] < 60000:
+            oper1 = globalMemory[actualCuadruplo[1]]
+        else:
+            oper1 = actualMemory[actualCuadruplo[1]]
+
+        if actualCuadruplo[2] > 160000:
+            oper2 = constantsMemory[actualCuadruplo[2]]
+        elif actualCuadruplo[2] < 60000:
+            oper2 = globalMemory[actualCuadruplo[2]]
+        else:
+            oper2 = actualMemory[actualCuadruplo[2]]
+
         if oper1 == None or oper2 == None:
             print("Error: variable not initialized.")
         else:
             actualMemory[actualCuadruplo[3]] = oper1 and oper2
         currentQuadruple = currentQuadruple + 1
     elif actualCuadruplo[0] == 'or':
+        if actualCuadruplo[1] > 160000:
+            oper1 = constantsMemory[actualCuadruplo[1]]
+        elif actualCuadruplo[1] < 60000:
+            oper1 = globalMemory[actualCuadruplo[1]]
+        else:
+            oper1 = actualMemory[actualCuadruplo[1]]
+
+        if actualCuadruplo[2] > 160000:
+            oper2 = constantsMemory[actualCuadruplo[2]]
+        elif actualCuadruplo[2] < 60000:
+            oper2 = globalMemory[actualCuadruplo[2]]
+        else:
+            oper2 = actualMemory[actualCuadruplo[2]]
+
         if oper1 == None or oper2 == None:
             print("Error: variable not initialized.")
         else:
+            print actualMemory
+            print oper1," opers ", oper2
+            oper1 = ast.literal_eval(oper1)
+            oper2 = ast.literal_eval(oper2)
             actualMemory[actualCuadruplo[3]] = oper1 or oper2
         currentQuadruple = currentQuadruple + 1
     elif actualCuadruplo[0] == '>':
@@ -319,10 +360,72 @@ while isRunning:
             actualMemory[actualCuadruplo[3]] = (oper1 != oper2)
 
         currentQuadruple = currentQuadruple + 1
+    elif actualCuadruplo[0] == 'PIECHART':
+        dirBaseDatos = actualCuadruplo[1]
+        dirBaseLabels = actualCuadruplo[2]
+        tamDatos = actualCuadruplo[3]
+
+        currentQuadruple = currentQuadruple + 1
+        actualCuadruplo = ast.literal_eval(cuadruplos[currentQuadruple])
+        actualCuadruplo = getVAStoredInAnotherVA(actualCuadruplo)
+
+        dirChartTitle = actualCuadruplo[3]
+
+        if dirChartTitle > 160000:
+            chartTitle = constantsMemory[dirChartTitle]
+        elif dirChartTitle < 60000:
+            chartTitle = globalMemory[dirChartTitle]
+        else:
+            chartTitle = actualMemory[dirChartTitle]
+
+        arrDatos = []
+        arrLabels = []
+        for i in range(0, tamDatos):
+            if dirBaseDatos < 60000:
+                arrDatos.append(globalMemory[dirBaseDatos+i])
+            else:
+                arrDatos.append(actualMemory[dirBaseDatos+i])
+            if dirBaseLabels < 60000:
+                arrLabels.append(globalMemory[dirBaseLabels+i])
+            else:
+                arrLabels.append(actualMemory[dirBaseLabels+i])
+
+        ch1 = plt.figure(chartTitle)
+        ch1 = plt.pie(arrDatos, labels=arrLabels)
+        #plt.show()
+        currentQuadruple = currentQuadruple + 1
+
     elif actualCuadruplo[0] == 'print':
         #print operation
-        print(actualMemory[actualCuadruplo[1]])
+        if actualCuadruplo[1] > 160000:
+            print(constantsMemory[actualCuadruplo[1]])
+        elif actualCuadruplo[1] < 60000:
+            print(globalMemory[actualCuadruplo[1]])
+        else:
+            print(actualMemory[actualCuadruplo[1]])
         currentQuadruple = currentQuadruple + 1
+    elif actualCuadruplo[0] == 'READ':
+        inputData = raw_input()
+        castedInput = inputData
+        if getNumTypeBasedOnVirtualAddres(actualCuadruplo[1]) == 1:
+            castedInput = int(inputData)
+        elif getNumTypeBasedOnVirtualAddres(actualCuadruplo[1]) == 2:
+            castedInput = float(inputData)
+        elif getNumTypeBasedOnVirtualAddres(actualCuadruplo[1]) == 3:
+            castedInput = ast.literal_eval(inputData)
+        elif len(inputData) == 1:
+            if getTypeBasedOnVirtualAddres(actualCuadruplo[1]) == 4:
+                print("Error: char is only allowed to hold 1 character")
+
+        if actualCuadruplo[1] > 160000:
+            print("Error: a value read from keyboard can not be assigned to a constant")
+        elif actualCuadruplo[1] < 60000:
+            globalMemory[actualCuadruplo[1]] = castedInput
+        else:
+            actualMemory[actualCuadruplo[1]] = castedInput
+
+        currentQuadruple = currentQuadruple + 1
+
     elif actualCuadruplo[0] == 'GOTOF':
         #if the given value is false, go to a certain quadruple
         #if the given value is true, go to the next quadruple
@@ -396,3 +499,4 @@ while isRunning:
     elif actualCuadruplo[0] == 'ENDPROG':
         #end of program
         isRunning = False
+        plt.show()
