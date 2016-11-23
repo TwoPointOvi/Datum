@@ -102,6 +102,7 @@ while isRunning:
             oper2 = actualMemory[actualCuadruplo[2]]
         if oper1 == None or oper2 == None:
             print("Error: variable not initialized.")
+            sys.exit()
         else:
             actualMemory[actualCuadruplo[3]] = oper1+oper2
         currentQuadruple = currentQuadruple + 1
@@ -121,6 +122,7 @@ while isRunning:
             oper2 = actualMemory[actualCuadruplo[2]]
         if oper1 == None or oper2 == None:
             print("Error: variable not initialized.")
+            sys.exit()
         else:
             actualMemory[actualCuadruplo[3]] = oper1-oper2
         currentQuadruple = currentQuadruple + 1
@@ -138,6 +140,7 @@ while isRunning:
             oper2 = actualMemory[actualCuadruplo[2]]
         if oper1 == None or oper2 == None:
             print("Error: variable not initialized.")
+            sys.exit()
         else:
             actualMemory[actualCuadruplo[3]] = oper1*oper2
         currentQuadruple = currentQuadruple + 1
@@ -155,7 +158,11 @@ while isRunning:
             oper2 = actualMemory[actualCuadruplo[2]]
         if oper1 == None or oper2 == None:
             print("Error: variable not initialized.")
+            sys.exit()
         else:
+            if oper2 == 0:
+                print("Error: zero division")
+                sys.exit()
             actualMemory[actualCuadruplo[3]] = oper1/oper2
         currentQuadruple = currentQuadruple + 1
     elif actualCuadruplo[0] == '^':
@@ -172,6 +179,7 @@ while isRunning:
             oper2 = actualMemory[actualCuadruplo[2]]
         if oper1 == None or oper2 == None:
             print("Error: variable not initialized.")
+            sys.exit()
         else:
             actualMemory[actualCuadruplo[3]] = oper1**oper2
         currentQuadruple = currentQuadruple + 1
@@ -186,6 +194,7 @@ while isRunning:
             oper1 = actualMemory[actualCuadruplo[1]]
         if oper1 == None:
             print("Error: variable not initialized.")
+            sys.exit()
         else:
             actualMemory[actualCuadruplo[3]] = oper1
         currentQuadruple = currentQuadruple + 1
@@ -206,6 +215,7 @@ while isRunning:
 
         if oper1 == None or oper2 == None:
             print("Error: variable not initialized.")
+            sys.exit()
         else:
             actualMemory[actualCuadruplo[3]] = oper1 and oper2
         currentQuadruple = currentQuadruple + 1
@@ -226,6 +236,7 @@ while isRunning:
 
         if oper1 == None or oper2 == None:
             print("Error: variable not initialized.")
+            sys.exit()
         else:
             actualMemory[actualCuadruplo[3]] = oper1 or oper2
         currentQuadruple = currentQuadruple + 1
@@ -246,6 +257,7 @@ while isRunning:
 
         if oper1 == None or oper2 == None:
             print("Error: variable not initialized. > operator.")
+            sys.exit()
         else:
             actualMemory[actualCuadruplo[3]] = oper1 > oper2
 
@@ -266,6 +278,7 @@ while isRunning:
 
         if oper1 == None or oper2 == None:
             print("Error: variable not initialized. == operator.")
+            sys.exit()
         else:
             actualMemory[actualCuadruplo[3]] = (oper1 == oper2)
 
@@ -287,6 +300,7 @@ while isRunning:
 
         if oper1 == None or oper2 == None:
             print("Error: variable not initialized. < operator.")
+            sys.exit()
         else:
             actualMemory[actualCuadruplo[3]] = (oper1 < oper2)
 
@@ -308,6 +322,7 @@ while isRunning:
 
         if oper1 == None or oper2 == None:
             print("Error: variable not initialized. >= operator.")
+            sys.exit()
         else:
             actualMemory[actualCuadruplo[3]] = (oper1 >= oper2)
 
@@ -329,6 +344,7 @@ while isRunning:
 
         if oper1 == None or oper2 == None:
             print("Error: variable not initialized. <= operator.")
+            sys.exit()
         else:
             actualMemory[actualCuadruplo[3]] = (oper1 <= oper2)
 
@@ -350,6 +366,7 @@ while isRunning:
 
         if oper1 == None or oper2 == None:
             print("Error: variable not initialized. <> operator.")
+            sys.exit()
         else:
             actualMemory[actualCuadruplo[3]] = (oper1 != oper2)
 
@@ -470,9 +487,11 @@ while isRunning:
         elif len(inputData) == 1:
             if getTypeBasedOnVirtualAddres(actualCuadruplo[1]) == 4:
                 print("Error: char is only allowed to hold 1 character")
+                sys.exit()
 
         if actualCuadruplo[1] > 160000:
             print("Error: a value read from keyboard can not be assigned to a constant")
+            sys.exit()
         elif actualCuadruplo[1] < 60000:
             globalMemory[actualCuadruplo[1]] = castedInput
         else:
